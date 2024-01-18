@@ -1,0 +1,6 @@
+#vscode folder with personal configs
+.vscode
+
+#.class files
+/bin
+*.class
