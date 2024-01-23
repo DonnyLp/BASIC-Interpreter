@@ -5,3 +5,6 @@
 #.class files
 /bin
 *.class
+
+#test files
+test.txt
