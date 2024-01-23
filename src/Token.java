@@ -18,6 +18,7 @@ public class Token {
     public Token(TokenType token, int lineNumber, int characterPos){
         this.token = token;
         this.lineNumber = lineNumber;
+        this.characterPos = characterPos;
 
     }   
 
