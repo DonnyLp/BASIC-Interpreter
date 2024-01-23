@@ -18,7 +18,7 @@ public class CodeHandler {
     }
 
 
-    // move the index
+
     public String peekString(int i) {
         return this.basicFile.substring(index, i);
     }
