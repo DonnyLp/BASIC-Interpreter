@@ -30,7 +30,7 @@ public class CodeHandler {
 
 
     public boolean isDone() {
-        return index == this.basicFile.length();
+        return index >= this.basicFile.length();
     }
 
 
