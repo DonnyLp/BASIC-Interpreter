@@ -37,13 +37,8 @@ public class Lexer {
             //State machine like implementation to control each character case
             switch (matchState(current)) {
                 case IGNORE -> {
-                    if(current == ' '){
-                        this.characterPosition++;
-                    }
-                    if(current == '\t'){
-                        this.characterPosition += 4;
-                    }
-
+                    if(current == ' ') this.characterPosition++;
+                    if(current == '\t') this.characterPosition += 4;
                     handler.swallow(1);
                 }
                 case WORD -> tokens.add(processWord(handler));
@@ -55,9 +50,11 @@ public class Lexer {
                     this.characterOffset = handler.getIndex();
                     handler.swallow(1);
                 }
-                case INVALID -> throw new IllegalArgumentException(invalidCharMessage("Invalid character", this.lineNumber, this.characterPosition));
+                case INVALID -> throw new IllegalArgumentException(invalidCharMessage("Invalid character", handler.peek(currentIndex) ,this.lineNumber, this.characterPosition));
             }
         }
+        //Add last ENDOFLINE token not handled in while loop
+        tokens.add(new Token(Token.TokenType.ENDOFLINE, this.lineNumber, this.characterPosition));
         return tokens;
     }
 
@@ -91,16 +88,12 @@ public class Lexer {
         int currentIndex = handler.getIndex();
 
         //Loops through characters while they are digits or at decimal points
-        while (!handler.isDone() && (Character.isDigit(handler.peek(currentIndex)) || handler.peek(currentIndex) == '.' || handler.peek(currentIndex) == ' ')) {
+        while (!handler.isDone() && (Character.isDigit(handler.peek(currentIndex)) || handler.peek(currentIndex) == '.')) {
 
-            //Handle invalid character exception
-            if(isValidNumberChar(handler.peek(currentIndex))){
-                throw new IllegalArgumentException(invalidCharMessage("Invalid character", this.lineNumber,this.characterPosition));
-            }
 
             //Handles the case where there's more than one decimal detected
             if (handler.peek(currentIndex) == '.' && isDecimal){
-                throw new IllegalArgumentException(invalidCharMessage("Extra Decimal", this.lineNumber, this.characterPosition));
+                throw new IllegalArgumentException(invalidCharMessage("Extra Decimal", handler.peek(currentIndex), this.lineNumber, currentIndex - characterOffset));
             }
 
             if (handler.peek(currentIndex) == '.') isDecimal = true;
@@ -109,6 +102,12 @@ public class Lexer {
             currentIndex++;
             handler.swallow(1);
         }
+
+        //Handle invalid characters
+        if(!handler.isDone() && (isValidNumberChar(handler.peek(currentIndex)) || !Character.isWhitespace(handler.peek(currentIndex)))){
+            throw new IllegalArgumentException(invalidCharMessage("Invalid character",handler.peek(currentIndex),this.lineNumber,currentIndex - characterOffset));
+        }
+
         //Create new token with accumulated string of characters, update the character position and swallow the characters of the recent token
         token = new Token(tokenValue.toString(), Token.TokenType.NUMBER, this.lineNumber, this.characterPosition);
         this.characterPosition = currentIndex - characterOffset;
@@ -139,7 +138,7 @@ public class Lexer {
     }
 
     //Helper method to create custom error message with specifications
-    private String invalidCharMessage(String customMessage, int lineNumber, int characterPosition){
-        return String.format("%s at Line: %d, Character %d", customMessage, lineNumber, characterPosition);
+    private String invalidCharMessage(String customMessage,char invalidChar, int lineNumber, int characterPosition){
+        return String.format("%s: '%c' at Line: %d, Character %d", customMessage, invalidChar, lineNumber, characterPosition);
     }
 }
