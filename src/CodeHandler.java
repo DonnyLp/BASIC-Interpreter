@@ -11,6 +11,7 @@ public class CodeHandler {
     public CodeHandler(String fileName) throws IOException {
         Path myPath = Paths.get(fileName);
         this.basicFile = new String(Files.readAllBytes(myPath));
+        this.index =  0;
     }
 
     public char peek(int i) {
