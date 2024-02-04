@@ -19,13 +19,13 @@ public class CodeHandlerTest {
     @Test
     public void peekTest() {
         char result = codeHandler.peek(11);
-        assertEquals('b', result);
+        assertEquals('1', result);
     }
 
     @Test
     public void peekStringTest() {
         String result = codeHandler.peekString(8);
-        assertEquals("Learning",result);
+        assertEquals("is 123 a",result);
     }
 
     @Test
@@ -37,9 +37,9 @@ public class CodeHandlerTest {
 
     @Test
     public void remainderTest() {
-        codeHandler.swallow(12);
+        codeHandler.swallow(25);
         String result = codeHandler.remainder();
-        assertEquals(" development, compiler, data, and theoritical math.", result);
+        assertEquals("invalid 1.2", result);
     }
 
     @Test
