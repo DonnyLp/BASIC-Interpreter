@@ -11,7 +11,7 @@ public class Lexer {
 
     private int characterOffset;
 
-    private HashMap<String, Token.TokenType> keyWords;
+    private final HashMap <String, Token.TokenType> keyWords;
 
     private enum state {
         WORD,
