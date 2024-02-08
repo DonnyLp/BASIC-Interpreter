@@ -6,8 +6,10 @@ public class Token {
     private int characterPos;
 
     public enum TokenType{
-        WORD,
-        NUMBER,
+        WORD, NUMBER, IF,DO, STRINGLITERAL, NOTEQUALS, LPAREN, RPAREN,
+        EQUALS, LESSTHAN, GREATERTHAN, LESSTHANOREQUAL, GREATERTHANOREQUAL,
+        ADD, SUBTRACT, MULTIPLY, DIVIDE,
+        LABEL, PRINT, READ, INPUT, DATA, GOSUB,FOR, TO, STEP, NEXT, RETURN, THEN, FUNCTION, WHILE, END,
         ENDOFLINE
     }
 
