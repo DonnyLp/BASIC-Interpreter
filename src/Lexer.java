@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 public class Lexer {
@@ -10,14 +11,18 @@ public class Lexer {
 
     private int characterOffset;
 
+    private HashMap<String, Token.TokenType> keyWords;
+
     private enum state {
         WORD,
         NUMBER,
         IGNORE,
+        STRINGLITERAL,
         INVALID,
         ENDOFLINE,
 
     }
+
 
     public Lexer(String fileName) throws IOException {
         handler = new CodeHandler(fileName);
@@ -25,6 +30,8 @@ public class Lexer {
         this.lineNumber = 1;
         this.characterPosition = 1;
         this.characterOffset = 0;
+        this.keyWords = new HashMap<>();
+        populateHashMap();
     }
 
     public LinkedList<Token> lex() {
@@ -73,6 +80,9 @@ public class Lexer {
             handler.swallow(1);
         }
 
+        if(keyWords.containsKey(tokenValue.toString())){
+            return new Token(keyWords.get(tokenValue.toString()),this.lineNumber,this.characterPosition);
+        }
         token = new Token(tokenValue.toString(), Token.TokenType.WORD, this.lineNumber, this.characterPosition);
         this.characterPosition = currentIndex - characterOffset;
         handler.swallow(currentIndex - handler.getIndex());
@@ -126,6 +136,27 @@ public class Lexer {
         else if (current == '\n') newState = state.ENDOFLINE;
 
         return newState;
+    }
+
+    //Helper to populate hashmap
+    public void populateHashMap(){
+        this.keyWords.put("for", Token.TokenType.FOR);
+        this.keyWords.put("do", Token.TokenType.DO);
+        this.keyWords.put("next", Token.TokenType.NEXT);
+        this.keyWords.put("if", Token.TokenType.IF);
+        this.keyWords.put("then", Token.TokenType.THEN);
+        this.keyWords.put("print", Token.TokenType.PRINT);
+        this.keyWords.put("data", Token.TokenType.DATA);
+        this.keyWords.put("input", Token.TokenType.INPUT);
+        this.keyWords.put("end", Token.TokenType.END);
+        this.keyWords.put("gosub", Token.TokenType.GOSUB);
+        this.keyWords.put("return", Token.TokenType.RETURN);
+        this.keyWords.put("while", Token.TokenType.WHILE);
+        this.keyWords.put("function", Token.TokenType.FUNCTION);
+        this.keyWords.put("to", Token.TokenType.TO);
+        this.keyWords.put("read", Token.TokenType.READ);
+        this.keyWords.put("step", Token.TokenType.STEP);
+
     }
 
     //Helper for processWord tokenizing
