@@ -50,6 +50,7 @@ public class Lexer {
                 }
                 case WORD -> tokens.add(processWord(handler));
                 case NUMBER -> tokens.add(processNumber(handler));
+                case STRINGLITERAL -> tokens.add(processStringLiteral(handler));
                 case ENDOFLINE -> {
                     tokens.add(new Token(Token.TokenType.ENDOFLINE, this.lineNumber, this.characterPosition));
                     this.lineNumber += 1;
@@ -70,7 +71,7 @@ public class Lexer {
     private Token processWord(CodeHandler handler) {
 
         StringBuilder tokenValue = new StringBuilder();
-        Token token;
+        Token token = null;
         int currentIndex = handler.getIndex();
 
         //Loop through characters while it's either a letter, digit, or terminating symbol for string variables
@@ -81,11 +82,11 @@ public class Lexer {
         }
 
         if(keyWords.containsKey(tokenValue.toString())){
-            return new Token(keyWords.get(tokenValue.toString()),this.lineNumber,this.characterPosition);
+            token = new Token(keyWords.get(tokenValue.toString()),this.lineNumber,this.characterPosition);
         }
-        token = new Token(tokenValue.toString(), Token.TokenType.WORD, this.lineNumber, this.characterPosition);
+        if(token == null) token = new Token(tokenValue.toString(), Token.TokenType.WORD, this.lineNumber, this.characterPosition);
+
         this.characterPosition = currentIndex - characterOffset;
-        handler.swallow(currentIndex - handler.getIndex());
         return token;
     }
 
@@ -121,7 +122,40 @@ public class Lexer {
         //Create new token with accumulated string of characters, update the character position and swallow the characters of the recent token
         token = new Token(tokenValue.toString(), Token.TokenType.NUMBER, this.lineNumber, this.characterPosition);
         this.characterPosition = currentIndex - characterOffset;
-        handler.swallow(currentIndex - handler.getIndex());
+        return token;
+    }
+
+    //Processes any string literals
+    public Token processStringLiteral(CodeHandler handler){
+        StringBuilder tokenValue = new StringBuilder();
+        Token token;
+        int currentIndex = handler.getIndex();
+
+        //Add first set of quotations to token value
+        tokenValue.append(handler.peek(currentIndex));
+        currentIndex++;
+        handler.swallow(1);
+
+        //Loop through string literal and create token
+        while(handler.peek(currentIndex) != '"'){
+            if(handler.peek(currentIndex) == '\\'){
+                tokenValue.append(handler.peek(currentIndex));
+                tokenValue.append(handler.peek(currentIndex + 1));
+                currentIndex+=2;
+                handler.swallow(2);
+            }
+            tokenValue.append(handler.peek(currentIndex));
+            currentIndex++;
+            handler.swallow(1);
+        }
+        //Handle ending quotation
+        tokenValue.append(handler.peek(currentIndex));
+        currentIndex++;
+        handler.swallow(1);
+
+        //Append token to list and update character position
+        token = new Token(tokenValue.toString(), Token.TokenType.STRINGLITERAL, this.lineNumber, this.characterPosition);
+        this.characterPosition = currentIndex - characterOffset;
         return token;
     }
 
@@ -133,6 +167,7 @@ public class Lexer {
         if (Character.isSpaceChar(current) || current == '\t' || current == '\r') newState = state.IGNORE;
         else if (Character.isAlphabetic(current)) newState = state.WORD;
         else if (Character.isDigit(current)) newState = state.NUMBER;
+        else if (current == '"') newState = state.STRINGLITERAL;
         else if (current == '\n') newState = state.ENDOFLINE;
 
         return newState;
@@ -140,22 +175,22 @@ public class Lexer {
 
     //Helper to populate hashmap
     public void populateHashMap(){
-        this.keyWords.put("for", Token.TokenType.FOR);
-        this.keyWords.put("do", Token.TokenType.DO);
-        this.keyWords.put("next", Token.TokenType.NEXT);
-        this.keyWords.put("if", Token.TokenType.IF);
-        this.keyWords.put("then", Token.TokenType.THEN);
-        this.keyWords.put("print", Token.TokenType.PRINT);
-        this.keyWords.put("data", Token.TokenType.DATA);
-        this.keyWords.put("input", Token.TokenType.INPUT);
-        this.keyWords.put("end", Token.TokenType.END);
-        this.keyWords.put("gosub", Token.TokenType.GOSUB);
-        this.keyWords.put("return", Token.TokenType.RETURN);
-        this.keyWords.put("while", Token.TokenType.WHILE);
-        this.keyWords.put("function", Token.TokenType.FUNCTION);
-        this.keyWords.put("to", Token.TokenType.TO);
-        this.keyWords.put("read", Token.TokenType.READ);
-        this.keyWords.put("step", Token.TokenType.STEP);
+        this.keyWords.put("FOR", Token.TokenType.FOR);
+        this.keyWords.put("DO", Token.TokenType.DO);
+        this.keyWords.put("NEXT", Token.TokenType.NEXT);
+        this.keyWords.put("IF", Token.TokenType.IF);
+        this.keyWords.put("THEN", Token.TokenType.THEN);
+        this.keyWords.put("PRINT", Token.TokenType.PRINT);
+        this.keyWords.put("DATA", Token.TokenType.DATA);
+        this.keyWords.put("INPUT", Token.TokenType.INPUT);
+        this.keyWords.put("END", Token.TokenType.END);
+        this.keyWords.put("GOSUB", Token.TokenType.GOSUB);
+        this.keyWords.put("RETURN", Token.TokenType.RETURN);
+        this.keyWords.put("WHILE", Token.TokenType.WHILE);
+        this.keyWords.put("FUNCTION", Token.TokenType.FUNCTION);
+        this.keyWords.put("TO", Token.TokenType.TO);
+        this.keyWords.put("READ", Token.TokenType.READ);
+        this.keyWords.put("STEP", Token.TokenType.STEP);
 
     }
 
