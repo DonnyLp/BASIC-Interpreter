@@ -14,30 +14,31 @@ public class CodeHandler {
         this.index =  0;
     }
 
+    //grabs the char, i characters ahead
     public char peek(int i) {
         return basicFile.charAt(i);
     }
 
-
-
+    //grabs the collection of chars, i characters ahead
     public String peekString(int i) {
         return this.basicFile.substring(index, i);
     }
 
-
+    //swallows the characters, i characters
     public void swallow(int i) {
         this.index += i;
     }
 
-
+    //checks if at end of file
     public boolean isDone() {
         return index >= this.basicFile.length();
     }
 
-
+    //returns the remainder of the file at the current index
     public String remainder() {
         return this.basicFile.substring(this.index);
     }
+
 
     public int getIndex(){
         return this.index;
