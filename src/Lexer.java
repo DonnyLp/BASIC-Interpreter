@@ -12,12 +12,16 @@ public class Lexer {
     private int characterOffset;
 
     private final HashMap <String, Token.TokenType> keyWords;
+    private final HashMap <String, Token.TokenType> doubleCharSymbols;
+    private final HashMap <String, Token.TokenType> singleCharSymbols;
+
 
     private enum state {
         WORD,
         NUMBER,
         IGNORE,
         STRINGLITERAL,
+        SYMBOL,
         INVALID,
         ENDOFLINE,
 
@@ -31,7 +35,9 @@ public class Lexer {
         this.characterPosition = 1;
         this.characterOffset = 0;
         this.keyWords = new HashMap<>();
-        populateHashMap();
+        this.singleCharSymbols = new HashMap<>();
+        this.doubleCharSymbols = new HashMap<>();
+        populateHashMaps();
     }
 
     public LinkedList<Token> lex() {
@@ -51,6 +57,7 @@ public class Lexer {
                 case WORD -> tokens.add(processWord(handler));
                 case NUMBER -> tokens.add(processNumber(handler));
                 case STRINGLITERAL -> tokens.add(processStringLiteral(handler));
+                case SYMBOL -> tokens.add(processSymbols(handler));
                 case ENDOFLINE -> {
                     tokens.add(new Token(Token.TokenType.ENDOFLINE, this.lineNumber, this.characterPosition));
                     this.lineNumber += 1;
@@ -70,9 +77,10 @@ public class Lexer {
     //Accepts letters,numbers, and string terminators for string variables
     private Token processWord(CodeHandler handler) {
 
-        StringBuilder tokenValue = new StringBuilder();
+
         Token token = null;
         int currentIndex = handler.getIndex();
+        StringBuilder tokenValue = new StringBuilder();
 
         //Loop through characters while it's either a letter, digit, or terminating symbol for string variables
         while (!handler.isDone() && (isValidWordChar(handler.peek(currentIndex)))){
@@ -93,10 +101,11 @@ public class Lexer {
     //Accepts number & decimals
     private Token processNumber(CodeHandler handler) {
 
-        StringBuilder tokenValue = new StringBuilder();
-        Token token;
+
+        Token token = null;
         boolean isDecimal = false;
         int currentIndex = handler.getIndex();
+        StringBuilder tokenValue = new StringBuilder();
 
         //Loops through characters while they are digits or at decimal points
         while (!handler.isDone() && (Character.isDigit(handler.peek(currentIndex)) || handler.peek(currentIndex) == '.')) {
@@ -115,7 +124,7 @@ public class Lexer {
         }
 
         //Handle invalid characters
-        if(!handler.isDone() && (isValidNumberChar(handler.peek(currentIndex)) || !Character.isWhitespace(handler.peek(currentIndex)))){
+        if(!handler.isDone() && (isValidNumberChar(handler.peek(currentIndex)) || !Character.isWhitespace(handler.peek(currentIndex)) && !isValidSymbol(handler.peek(currentIndex)))){
             throw new IllegalArgumentException(invalidCharMessage("Invalid character",handler.peek(currentIndex),this.lineNumber,currentIndex - characterOffset));
         }
 
@@ -125,11 +134,11 @@ public class Lexer {
         return token;
     }
 
-    //Processes any string literals
-    public Token processStringLiteral(CodeHandler handler){
-        StringBuilder tokenValue = new StringBuilder();
-        Token token;
+    private Token processStringLiteral(CodeHandler handler){
+
+        Token token = null;
         int currentIndex = handler.getIndex();
+        StringBuilder tokenValue = new StringBuilder();
 
         //Add first set of quotations to token value
         tokenValue.append(handler.peek(currentIndex));
@@ -159,6 +168,28 @@ public class Lexer {
         return token;
     }
 
+
+    private Token processSymbols(CodeHandler handler){
+
+        Token token = null;
+        int currentIndex = handler.getIndex();
+        String singleCharSymbol = Character.toString(handler.peek(currentIndex));
+        String doubleCharSymbol = handler.peekString(currentIndex + 2);
+
+        //handle double character symbol
+        if(this.doubleCharSymbols.containsKey(doubleCharSymbol)){
+            token = new Token(doubleCharSymbol,doubleCharSymbols.get(doubleCharSymbol),this.lineNumber,this.characterPosition);
+            handler.swallow(2);
+        }
+        else if(this.singleCharSymbols.containsKey(singleCharSymbol)){
+            token = new Token(singleCharSymbol,singleCharSymbols.get(singleCharSymbol), this.lineNumber,this.characterPosition);
+        }
+            handler.swallow(1);
+            this.characterPosition = handler.getIndex() - characterOffset;
+            return token ;
+    }
+
+
     //Helper method to match character to specific token state (WORD, NUMBER,etc.)
     private state matchState(char current) {
 
@@ -169,12 +200,12 @@ public class Lexer {
         else if (Character.isDigit(current)) newState = state.NUMBER;
         else if (current == '"') newState = state.STRINGLITERAL;
         else if (current == '\n') newState = state.ENDOFLINE;
-
+        else if (this.singleCharSymbols.containsKey(Character.toString(current))) newState = state.SYMBOL;
         return newState;
     }
 
-    //Helper to populate hashmap
-    public void populateHashMap(){
+    private void populateHashMaps(){
+        //initialize keywords hash map
         this.keyWords.put("FOR", Token.TokenType.FOR);
         this.keyWords.put("DO", Token.TokenType.DO);
         this.keyWords.put("NEXT", Token.TokenType.NEXT);
@@ -192,18 +223,33 @@ public class Lexer {
         this.keyWords.put("READ", Token.TokenType.READ);
         this.keyWords.put("STEP", Token.TokenType.STEP);
 
+        //initialize double character symbol hashmap
+        this.doubleCharSymbols.put("<>", Token.TokenType.NOTEQUALS);
+        this.doubleCharSymbols.put("<=",Token.TokenType.LESSTHANOREQUAL);
+        this.doubleCharSymbols.put(">=",Token.TokenType.GREATERTHANOREQUAL);
+
+        //initialize single character symbol hashmap
+        this.singleCharSymbols.put("=", Token.TokenType.EQUALS);
+        this.singleCharSymbols.put("<", Token.TokenType.LESSTHAN);
+        this.singleCharSymbols.put(">", Token.TokenType.GREATERTHAN);
+        this.singleCharSymbols.put("(", Token.TokenType.LPAREN);
+        this.singleCharSymbols.put(")", Token.TokenType.RPAREN);
+        this.singleCharSymbols.put("+", Token.TokenType.ADD);
+        this.singleCharSymbols.put("-", Token.TokenType.SUBTRACT);
+        this.singleCharSymbols.put("*", Token.TokenType.MULTIPLY);
+        this.singleCharSymbols.put("/", Token.TokenType.DIVIDE);
+        this.singleCharSymbols.put(":", Token.TokenType.LABEL);
+
     }
 
-    //Helper for processWord tokenizing
-    private boolean isValidWordChar(char c){
-        return Character.isAlphabetic(c) || Character.isDigit(c) || c == '$' || c == '%';
-    }
+    //Helper to validate characters in processWord
+    private boolean isValidWordChar(char c) { return Character.isAlphabetic(c) || Character.isDigit(c) || c == '$' || c == '%'; }
+    //Helper to validate characters in processNumber
+    private boolean isValidNumberChar(char c) { return Character.isDigit(c) || c == '.'; }
 
-    private boolean isValidNumberChar(char c){
-        return Character.isDigit(c) || c == '.';
-    }
+    private boolean isValidSymbol(char c) {return this.singleCharSymbols.containsKey(Character.toString(c));}
 
-    //Helper method to create custom error message with specifications
+    //Creates custom error message for invalid characters
     private String invalidCharMessage(String customMessage,char invalidChar, int lineNumber, int characterPosition){
         return String.format("%s: '%c' at Line: %d, Character %d", customMessage, invalidChar, lineNumber, characterPosition);
     }
