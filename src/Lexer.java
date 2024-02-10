@@ -89,9 +89,19 @@ public class Lexer {
             handler.swallow(1);
         }
 
+        //Handle keywords
         if(keyWords.containsKey(tokenValue.toString())){
             token = new Token(keyWords.get(tokenValue.toString()),this.lineNumber,this.characterPosition);
         }
+
+        //Handle label case
+        if (handler.peek(currentIndex) == ':'){
+            token = new Token(tokenValue.toString(), Token.TokenType.LABEL,this.lineNumber,this.characterPosition);
+            currentIndex++;
+            handler.swallow(1);
+        }
+
+
         if(token == null) token = new Token(tokenValue.toString(), Token.TokenType.WORD, this.lineNumber, this.characterPosition);
 
         this.characterPosition = currentIndex - characterOffset;
@@ -174,9 +184,14 @@ public class Lexer {
         Token token = null;
         int currentIndex = handler.getIndex();
         String singleCharSymbol = Character.toString(handler.peek(currentIndex));
-        String doubleCharSymbol = handler.peekString(currentIndex + 2);
+        String doubleCharSymbol = "";
 
-        //handle double character symbol
+        //Handle edge case for end of file double character peek ahead
+        if(!(handler.getFileLength() >= currentIndex + 1)){
+            doubleCharSymbol = handler.peekString(currentIndex + 2);
+        }
+
+        //handle double and single character symbols
         if(this.doubleCharSymbols.containsKey(doubleCharSymbol)){
             token = new Token(doubleCharSymbol,doubleCharSymbols.get(doubleCharSymbol),this.lineNumber,this.characterPosition);
             handler.swallow(2);
@@ -238,8 +253,6 @@ public class Lexer {
         this.singleCharSymbols.put("-", Token.TokenType.SUBTRACT);
         this.singleCharSymbols.put("*", Token.TokenType.MULTIPLY);
         this.singleCharSymbols.put("/", Token.TokenType.DIVIDE);
-        this.singleCharSymbols.put(":", Token.TokenType.LABEL);
-
     }
 
     //Helper to validate characters in processWord
