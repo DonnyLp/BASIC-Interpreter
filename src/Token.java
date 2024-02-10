@@ -35,6 +35,6 @@ public class Token {
 
     @Override
     public String toString(){
-        return this.token + " : " + this.tokenValue + " ( " + "Line: " + this.lineNumber + " , " + "Character: " + this.characterPos + " ) ";
+        return this.token + " : " + "\"" + this.tokenValue + "\" " + " ( " + "Line: " + this.lineNumber + " , " + "Character: " + this.characterPos + " ) ";
     }
 }
