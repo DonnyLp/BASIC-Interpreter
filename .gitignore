@@ -1,6 +1,7 @@
-#ide folder with personal configs
+#ide module files
 .vscode
 .idea
+*.iml
 
 #.class files
 /bin
@@ -8,3 +9,7 @@
 
 #test files
 test.txt
+
+#library files
+lib
+
