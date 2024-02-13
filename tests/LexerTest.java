@@ -1,8 +1,5 @@
 import java.io.IOException;
-import java.util.LinkedList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
 import org.junit.Test;
 
 
@@ -13,9 +10,7 @@ public class LexerTest {
     @Test
     public void lexTest() throws IOException {
         Lexer lexer = new Lexer("test.txt");
-        LinkedList<Token> tokens = lexer.lex();
         Token token = lexer.nexToken();
-
 
         //WORD TEST
 

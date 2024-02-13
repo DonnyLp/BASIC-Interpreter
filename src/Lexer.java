@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Locale;
 
 public class Lexer {
 
@@ -84,7 +83,6 @@ public class Lexer {
 
 
         Token token = null;
-        int currentIndex = handler.getIndex();
         StringBuilder tokenValue = new StringBuilder();
 
         //Loop through characters while it's either a letter, digit, or terminating symbol for string variables
