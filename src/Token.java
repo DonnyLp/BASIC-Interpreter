@@ -39,6 +39,6 @@ public class Token {
 
     @Override
     public String toString() {
-        return String.format("%s <%s> - (%d:%d)", token, value, lineNumber, characterPosition);
+        return String.format("%s |%s| - (%d:%d)", token, value, lineNumber, characterPosition);
     }
 }
