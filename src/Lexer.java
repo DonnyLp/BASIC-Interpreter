@@ -46,8 +46,7 @@ public class Lexer {
 
         while (!handler.isDone()) {
 
-            int currentIndex = handler.getIndex();
-            char current = handler.peek(currentIndex);
+            char current = handler.peek(0);
 
             //State machine like implementation to control each character case
             switch (matchState(current)) {
@@ -67,7 +66,7 @@ public class Lexer {
                     this.characterOffset = handler.getIndex();
                     handler.swallow(1);
                 }
-                case INVALID -> throw new IllegalArgumentException(invalidCharMessage("Invalid character", handler.peek(currentIndex) ,this.lineNumber, this.characterPosition));
+                case INVALID -> throw new IllegalArgumentException(invalidCharMessage("Invalid character", handler.peek(1) ,this.lineNumber, this.characterPosition));
             }
         }
         //Add last ENDOFLINE token not handled in while loop
@@ -89,33 +88,40 @@ public class Lexer {
         StringBuilder tokenValue = new StringBuilder();
 
         //Loop through characters while it's either a letter, digit, or terminating symbol for string variables
-        while (!handler.isDone() && (isValidWordChar(handler.peek(currentIndex)))){
-            tokenValue.append(handler.peek(currentIndex));
-            currentIndex++;
+        while (!handler.isDone() && (isValidWordChar(handler.peek(0)))){
+            tokenValue.append(handler.peek(0));
             handler.swallow(1);
         }
 
         //Handle keywords and makes corresponding token
-        if(keyWords.containsKey(keyWordCaseIgnore(tokenValue.toString()))){
-            token = new Token(keyWords.get(keyWordCaseIgnore(tokenValue.toString())),this.lineNumber,this.characterPosition);
+        if(keyWords.containsKey(tokenValue.toString())){
+            token = new Token(keyWords.get(tokenValue.toString()),this.lineNumber,this.characterPosition);
         }
 
         //Handle label case
-        if (!handler.isDone() && handler.peek(currentIndex) == ':'){
+        if (!handler.isDone() && handler.peek(0) == ':'){
+
+            tokenValue.append(handler.peek(0));
             token = new Token(tokenValue.toString(), Token.TokenType.LABEL,this.lineNumber,this.characterPosition);
-            currentIndex++;
             handler.swallow(1);
+
         }
-        else if (!handler.isDone() && handler.peek(currentIndex + 1) == ':'){
+        //Handle case where there's a space in between the semicolon and consume the corresponding characters
+        else if (!handler.isDone() && handler.peek(1) == ':'){
+
+            //Append both the space and semicolon character
+            tokenValue.append(handler.peek(0));
+            tokenValue.append(handler.peek(1));
+
             token = new Token(tokenValue.toString(), Token.TokenType.LABEL,this.lineNumber,this.characterPosition);
-            currentIndex++;
             handler.swallow(2);
+
         }
 
-
+        //Set token to regular word token, if not set in prior cases
         if(token == null) token = new Token(tokenValue.toString(), Token.TokenType.WORD, this.lineNumber, this.characterPosition);
 
-        this.characterPosition = currentIndex - characterOffset;
+        this.characterPosition = handler.getIndex() - characterOffset;
         return token;
     }
 
@@ -123,71 +129,63 @@ public class Lexer {
     private Token processNumber(CodeHandler handler) {
 
 
-        Token token = null;
+        Token token;
         boolean isDecimal = false;
-        int currentIndex = handler.getIndex();
         StringBuilder tokenValue = new StringBuilder();
 
         //Loops through characters while they are digits or at decimal points
-        while (!handler.isDone() && (Character.isDigit(handler.peek(currentIndex)) || handler.peek(currentIndex) == '.')) {
+        while (!handler.isDone() && (Character.isDigit(handler.peek(0)) || handler.peek(0) == '.')) {
 
 
             //Handles the case where there's more than one decimal detected
-            if (handler.peek(currentIndex) == '.' && isDecimal){
-                throw new IllegalArgumentException(invalidCharMessage("Extra Decimal", handler.peek(currentIndex), this.lineNumber, currentIndex - characterOffset));
+            if (handler.peek(0) == '.' && isDecimal){
+                throw new IllegalArgumentException(invalidCharMessage("Extra Decimal", handler.peek(0), this.lineNumber, handler.getIndex() - characterOffset));
             }
 
-            if (handler.peek(currentIndex) == '.') isDecimal = true;
+            if (handler.peek(0) == '.') isDecimal = true;
 
-            tokenValue.append(handler.peek(currentIndex));
-            currentIndex++;
+            tokenValue.append(handler.peek(0));
             handler.swallow(1);
         }
 
         //Handle invalid characters
-        if(!handler.isDone() && (isValidNumberChar(handler.peek(currentIndex)) || !Character.isWhitespace(handler.peek(currentIndex)) && !isValidSymbol(handler.peek(currentIndex)))){
-            throw new IllegalArgumentException(invalidCharMessage("Invalid character",handler.peek(currentIndex),this.lineNumber,currentIndex - characterOffset));
+        if(!handler.isDone() && (isValidNumberChar(handler.peek(0)) || !Character.isWhitespace(handler.peek(0)) && !isValidSymbol(handler.peek(0)))){
+            throw new IllegalArgumentException(invalidCharMessage("Invalid character",handler.peek(0),this.lineNumber,handler.getIndex() - characterOffset));
         }
 
         //Create new token with accumulated string of characters, update the character position and swallow the characters of the recent token
         token = new Token(tokenValue.toString(), Token.TokenType.NUMBER, this.lineNumber, this.characterPosition);
-        this.characterPosition = currentIndex - characterOffset;
+        this.characterPosition = handler.getIndex() - characterOffset;
         return token;
     }
 
     //Processes characters forming a string literals and returns the corresponding token
     private Token processStringLiteral(CodeHandler handler){
 
-        Token token = null;
-        int currentIndex = handler.getIndex();
+        Token token;
         StringBuilder tokenValue = new StringBuilder();
 
-        //Add first set of quotations to token value
-        tokenValue.append(handler.peek(currentIndex));
-        currentIndex++;
+        //Consume the beginning quotation
         handler.swallow(1);
 
         //Loop through string literal and create token
-        while(!handler.isDone() && handler.peek(currentIndex) != '"'){
+        while(!handler.isDone() && handler.peek(0) != '"'){
             //Handle escaped nested in string literal
-            if(handler.peek(currentIndex) == '\\'){
-                tokenValue.append(handler.peek(currentIndex + 1));
-                currentIndex+=2;
+            if(handler.peek(0) == '\\'){
+                tokenValue.append(handler.peek(1));
                 handler.swallow(2);
             }
             //accumulate characters
-                tokenValue.append(handler.peek(currentIndex));
-                currentIndex++;
+                tokenValue.append(handler.peek(0));
                 handler.swallow(1);
         }
-        //Handle ending quotation
-        tokenValue.append(handler.peek(currentIndex));
-        currentIndex++;
+
+        //Consume ending quotation
         handler.swallow(1);
 
         //Append token to list and update character position
         token = new Token(tokenValue.toString(), Token.TokenType.STRINGLITERAL, this.lineNumber, this.characterPosition);
-        this.characterPosition = currentIndex - characterOffset;
+        this.characterPosition = handler.getIndex() - characterOffset;
         return token;
     }
 
@@ -195,13 +193,12 @@ public class Lexer {
     private Token processSymbols(CodeHandler handler){
 
         Token token = null;
-        int currentIndex = handler.getIndex();
-        String singleCharSymbol = Character.toString(handler.peek(currentIndex));
+        String singleCharSymbol = Character.toString(handler.peek(0));
         String doubleCharSymbol = "";
 
         //Handle edge case for string index out of bounds on double character peek ahead
-        if((currentIndex + 2) <= handler.getFileLength()){
-            doubleCharSymbol = handler.peekString(currentIndex + 2);
+        if((handler.getIndex() + 2)<= handler.getFileLength()){
+            doubleCharSymbol = handler.peekString(2);
         }
 
         //Handle double and single character symbols
@@ -275,16 +272,6 @@ public class Lexer {
     private boolean isValidNumberChar(char c) { return Character.isDigit(c) || c == '.'; }
     //Helper to validate symbols
     private boolean isValidSymbol(char c) {return this.singleCharSymbols.containsKey(Character.toString(c));}
-
-    //Handles case sensitivity for keywords
-    private String keyWordCaseIgnore(String keyword){
-        String keyWordLowerCase = keyword.toLowerCase();
-
-        if(keyword.equalsIgnoreCase(keyWordLowerCase)){
-            return keyword.toUpperCase();
-        }
-        return "";
-    }
 
     //Creates custom error message for invalid characters
     private String invalidCharMessage(String customMessage,char invalidChar, int lineNumber, int characterPosition){

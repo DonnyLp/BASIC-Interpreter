@@ -42,17 +42,17 @@ public class LexerTest {
 
         //empty string literal
         assertEquals(Token.TokenType.STRINGLITERAL, token.getType());
-        assertEquals("\"\"", token.getValue());
+        assertEquals("", token.getValue());
         token = lexer.nexToken();
 
         //regular
         assertEquals(Token.TokenType.STRINGLITERAL, token.getType());
-        assertEquals("\"Nice Test Here!\"", token.getValue());
+        assertEquals("Nice Test Here!", token.getValue());
         token = lexer.nexToken();
 
         //escaped
         assertEquals(Token.TokenType.STRINGLITERAL, token.getType());
-        assertEquals("\"Sung \"DRIP\" WOO\"", token.getValue());
+        assertEquals("Sung \"DRIP\" WOO", token.getValue());
         token = lexer.nexToken();
 
         assertEquals(Token.TokenType.ENDOFLINE, token.getType());
@@ -65,6 +65,13 @@ public class LexerTest {
         assertEquals(Token.TokenType.STEP, token.getType());
         token = lexer.nexToken();
 
+        //LABEL TESTING
+
+        assertEquals(Token.TokenType.LABEL, token.getType());
+        assertEquals("Method :", token.getValue());
+        token = lexer.nexToken();
+
         assertEquals(Token.TokenType.ENDOFLINE, token.getType());
+
     }
 }
