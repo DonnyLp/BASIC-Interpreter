@@ -101,21 +101,14 @@ public class Lexer {
         //Handle label case
         if (!handler.isDone() && handler.peek(0) == ':'){
 
-            tokenValue.append(handler.peek(0));
             token = new Token(tokenValue.toString(), Token.TokenType.LABEL,this.lineNumber,this.characterPosition);
             handler.swallow(1);
 
         }
         //Handle case where there's a space in between the semicolon and consume the corresponding characters
         else if (!handler.isDone() && handler.peek(1) == ':'){
-
-            //Append both the space and semicolon character
-            tokenValue.append(handler.peek(0));
-            tokenValue.append(handler.peek(1));
-
             token = new Token(tokenValue.toString(), Token.TokenType.LABEL,this.lineNumber,this.characterPosition);
             handler.swallow(2);
-
         }
 
         //Set token to regular word token, if not set in prior cases

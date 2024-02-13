@@ -68,7 +68,19 @@ public class LexerTest {
         //LABEL TESTING
 
         assertEquals(Token.TokenType.LABEL, token.getType());
-        assertEquals("Method :", token.getValue());
+        assertEquals("Method", token.getValue());
+        token = lexer.nexToken();
+
+        assertEquals(Token.TokenType.WORD, token.getType());
+        assertEquals("var", token.getValue());
+        token = lexer.nexToken();
+
+        assertEquals(Token.TokenType.ADD, token.getType());
+        assertEquals("+", token.getValue());
+        token = lexer.nexToken();
+
+        assertEquals(Token.TokenType.NUMBER, token.getType());
+        assertEquals("8", token.getValue());
         token = lexer.nexToken();
 
         assertEquals(Token.TokenType.ENDOFLINE, token.getType());
