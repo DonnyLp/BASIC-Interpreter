@@ -21,12 +21,12 @@ public class CodeHandler {
 
     //grabs the collection of chars, i characters ahead
     public String peekString(int i) {
-        return this.basicFile.substring(index, i);
+        return basicFile.substring(index, i);
     }
 
     //swallows the characters, i characters
     public void swallow(int i) {
-        this.index += i;
+        index += i;
     }
 
     //checks if at end of file
@@ -36,15 +36,15 @@ public class CodeHandler {
 
     //returns the remainder of the file at the current index
     public String remainder() {
-        return this.basicFile.substring(this.index);
+        return basicFile.substring(index);
     }
 
 
     public int getIndex(){
-        return this.index;
+        return index;
     }
 
     public int getFileLength(){
-        return this.basicFile.length();
+        return basicFile.length();
     }
 }
