@@ -14,14 +14,14 @@ public class CodeHandler {
         this.index =  0;
     }
 
-    //grabs the char, i characters ahead
+    //Grabs the characters, i characters ahead
     public char peek(int i) {
-        return basicFile.charAt(i);
+        return basicFile.charAt(index + i);
     }
 
     //grabs the collection of chars, i characters ahead
     public String peekString(int i) {
-        return basicFile.substring(index, i);
+        return basicFile.substring(index, i + index);
     }
 
     //swallows the characters, i characters
