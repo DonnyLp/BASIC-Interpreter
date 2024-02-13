@@ -171,7 +171,6 @@ public class Lexer {
         while(!handler.isDone() && handler.peek(currentIndex) != '"'){
             //Handle escaped nested in string literal
             if(handler.peek(currentIndex) == '\\'){
-                tokenValue.append(handler.peek(currentIndex));
                 tokenValue.append(handler.peek(currentIndex + 1));
                 currentIndex+=2;
                 handler.swallow(2);
@@ -200,12 +199,12 @@ public class Lexer {
         String singleCharSymbol = Character.toString(handler.peek(currentIndex));
         String doubleCharSymbol = "";
 
-        //Handle edge case for end of file double character peek ahead
-        if(!(handler.getFileLength() >= currentIndex + 1)){
+        //Handle edge case for string index out of bounds on double character peek ahead
+        if((currentIndex + 2) <= handler.getFileLength()){
             doubleCharSymbol = handler.peekString(currentIndex + 2);
         }
 
-        //handle double and single character symbols
+        //Handle double and single character symbols
         if(this.doubleCharSymbols.containsKey(doubleCharSymbol)){
             token = new Token(doubleCharSymbol,doubleCharSymbols.get(doubleCharSymbol),this.lineNumber,this.characterPosition);
             handler.swallow(2);
@@ -274,10 +273,10 @@ public class Lexer {
     private boolean isValidWordChar(char c) { return Character.isAlphabetic(c) || Character.isDigit(c) || c == '$' || c == '%'; }
     //Helper to validate characters in processNumber
     private boolean isValidNumberChar(char c) { return Character.isDigit(c) || c == '.'; }
-
+    //Helper to validate symbols
     private boolean isValidSymbol(char c) {return this.singleCharSymbols.containsKey(Character.toString(c));}
 
-    //Handles case sensitivity of keywords
+    //Handles case sensitivity for keywords
     private String keyWordCaseIgnore(String keyword){
         String keyWordLowerCase = keyword.toLowerCase();
 
