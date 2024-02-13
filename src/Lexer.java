@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Locale;
 
 public class Lexer {
 
@@ -8,7 +9,7 @@ public class Lexer {
     private final CodeHandler handler;
     private int lineNumber;
     private int characterPosition;
-
+    private int tokenListIndex;
     private int characterOffset;
 
     private final HashMap <String, Token.TokenType> keyWords;
@@ -34,6 +35,7 @@ public class Lexer {
         this.lineNumber = 1;
         this.characterPosition = 1;
         this.characterOffset = 0;
+        this.tokenListIndex = 0;
         this.keyWords = new HashMap<>();
         this.singleCharSymbols = new HashMap<>();
         this.doubleCharSymbols = new HashMap<>();
@@ -73,8 +75,12 @@ public class Lexer {
         return tokens;
     }
 
+    //Grabs the next token in the list of tokens
+    public Token nexToken(){
+        return this.tokens.get(tokenListIndex++);
+    }
 
-    //Accepts letters,numbers, and string terminators for string variables
+    //Processes characters forming a word and returns the corresponding token
     private Token processWord(CodeHandler handler) {
 
 
@@ -89,16 +95,21 @@ public class Lexer {
             handler.swallow(1);
         }
 
-        //Handle keywords
-        if(keyWords.containsKey(tokenValue.toString())){
-            token = new Token(keyWords.get(tokenValue.toString()),this.lineNumber,this.characterPosition);
+        //Handle keywords and makes corresponding token
+        if(keyWords.containsKey(keyWordCaseIgnore(tokenValue.toString()))){
+            token = new Token(keyWords.get(keyWordCaseIgnore(tokenValue.toString())),this.lineNumber,this.characterPosition);
         }
 
         //Handle label case
-        if (handler.peek(currentIndex) == ':'){
+        if (!handler.isDone() && handler.peek(currentIndex) == ':'){
             token = new Token(tokenValue.toString(), Token.TokenType.LABEL,this.lineNumber,this.characterPosition);
             currentIndex++;
             handler.swallow(1);
+        }
+        else if (!handler.isDone() && handler.peek(currentIndex + 1) == ':'){
+            token = new Token(tokenValue.toString(), Token.TokenType.LABEL,this.lineNumber,this.characterPosition);
+            currentIndex++;
+            handler.swallow(2);
         }
 
 
@@ -108,7 +119,7 @@ public class Lexer {
         return token;
     }
 
-    //Accepts number & decimals
+    //Processes characters forming a numbers and returns the corresponding token
     private Token processNumber(CodeHandler handler) {
 
 
@@ -144,6 +155,7 @@ public class Lexer {
         return token;
     }
 
+    //Processes characters forming a string literals and returns the corresponding token
     private Token processStringLiteral(CodeHandler handler){
 
         Token token = null;
@@ -156,16 +168,18 @@ public class Lexer {
         handler.swallow(1);
 
         //Loop through string literal and create token
-        while(handler.peek(currentIndex) != '"'){
+        while(!handler.isDone() && handler.peek(currentIndex) != '"'){
+            //Handle escaped nested in string literal
             if(handler.peek(currentIndex) == '\\'){
                 tokenValue.append(handler.peek(currentIndex));
                 tokenValue.append(handler.peek(currentIndex + 1));
                 currentIndex+=2;
                 handler.swallow(2);
             }
-            tokenValue.append(handler.peek(currentIndex));
-            currentIndex++;
-            handler.swallow(1);
+            //accumulate characters
+                tokenValue.append(handler.peek(currentIndex));
+                currentIndex++;
+                handler.swallow(1);
         }
         //Handle ending quotation
         tokenValue.append(handler.peek(currentIndex));
@@ -178,7 +192,7 @@ public class Lexer {
         return token;
     }
 
-
+    //Processes characters forming symbols and returns the corresponding token
     private Token processSymbols(CodeHandler handler){
 
         Token token = null;
@@ -198,14 +212,13 @@ public class Lexer {
         }
         else if(this.singleCharSymbols.containsKey(singleCharSymbol)){
             token = new Token(singleCharSymbol,singleCharSymbols.get(singleCharSymbol), this.lineNumber,this.characterPosition);
-        }
             handler.swallow(1);
+        }
             this.characterPosition = handler.getIndex() - characterOffset;
             return token ;
     }
 
-
-    //Helper method to match character to specific token state (WORD, NUMBER,etc.)
+    //Matches character to specific state (WORD, NUMBER,etc.)
     private state matchState(char current) {
 
         state newState = state.INVALID;
@@ -219,6 +232,7 @@ public class Lexer {
         return newState;
     }
 
+    //Adds corresponding elements to initialized hash maps (SYMBOLS & KEYWORDS)
     private void populateHashMaps(){
         //initialize keywords hash map
         this.keyWords.put("FOR", Token.TokenType.FOR);
@@ -253,6 +267,7 @@ public class Lexer {
         this.singleCharSymbols.put("-", Token.TokenType.SUBTRACT);
         this.singleCharSymbols.put("*", Token.TokenType.MULTIPLY);
         this.singleCharSymbols.put("/", Token.TokenType.DIVIDE);
+        this.singleCharSymbols.put(",", Token.TokenType.COMMA);
     }
 
     //Helper to validate characters in processWord
@@ -262,8 +277,20 @@ public class Lexer {
 
     private boolean isValidSymbol(char c) {return this.singleCharSymbols.containsKey(Character.toString(c));}
 
+    //Handles case sensitivity of keywords
+    private String keyWordCaseIgnore(String keyword){
+        String keyWordLowerCase = keyword.toLowerCase();
+
+        if(keyword.equalsIgnoreCase(keyWordLowerCase)){
+            return keyword.toUpperCase();
+        }
+        return "";
+    }
+
     //Creates custom error message for invalid characters
     private String invalidCharMessage(String customMessage,char invalidChar, int lineNumber, int characterPosition){
         return String.format("%s: '%c' at Line: %d, Character %d", customMessage, invalidChar, lineNumber, characterPosition);
     }
+
+
 }
