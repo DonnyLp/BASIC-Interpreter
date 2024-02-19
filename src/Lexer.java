@@ -30,7 +30,6 @@ public class Lexer {
 
     public Lexer(String fileName) throws IOException {
         handler = new CodeHandler(fileName);
-        // TO DO: instantiate the line number and character position
         this.lineNumber = 1;
         this.characterPosition = 1;
         this.characterOffset = 0;
