@@ -1,4 +1,4 @@
-# BASIC Compiler
+# BASIC Interpreter
 
 This repository contains a BASIC language compiler implemented using Java. The compiler utilizes lexing, Abstract Syntax Tree (AST) parsing, and interpretation techniques.
 
