@@ -4,7 +4,7 @@ import java.util.Optional;
 public class TokenHandler {
 
     //Member Variables
-    LinkedList<Token> tokens = new LinkedList<>();
+    private LinkedList<Token> tokens = new LinkedList<>();
 
     //Method declerations
     public TokenHandler(LinkedList<Token> tokens){
@@ -20,11 +20,12 @@ public class TokenHandler {
         return Optional.of(tokens.get(i));
     }
 
-    //Check if there's more tokens
+    //Checks for more tokens in the list
     public boolean moreTokens(){
         return tokens.isEmpty();
     }
 
+    //Checks if passed in token type matches the head of the list's token type and handles
     Optional<Token> matchAndRemove(Token.TokenType type){
 
         //Grab the head of the list
