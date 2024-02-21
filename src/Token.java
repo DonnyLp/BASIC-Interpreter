@@ -1,7 +1,7 @@
 public class Token {
-    
+
     private String value;
-    private final TokenType token;
+    private final TokenType type;
     private int lineNumber;
     private int characterPosition;
 
@@ -13,32 +13,43 @@ public class Token {
         COMMA, ENDOFLINE
     }
 
-    public Token(TokenType token, String value){
-        this.token = token;
+    public Token(TokenType type, String value){
+        this.type = type;
         this.value = value;
     }
 
-    public Token(String value, TokenType token, int lineNumber, int characterPosition){
+    public Token(String value, TokenType type, int lineNumber, int characterPosition){
         this.value = value;
-        this.token = token;
+        this.type = type;
         this.lineNumber = lineNumber;
         this.characterPosition = characterPosition;
     }
 
-    public Token(TokenType token, int lineNumber, int characterPosition){
-        this.token = token;
+    public Token(TokenType type, int lineNumber, int characterPosition){
+        this.type = type;
         this.lineNumber = lineNumber;
         this.characterPosition = characterPosition;
 
     }
 
-    public TokenType getType(){ return this.token; }
+    public TokenType getType(){ return this.type; }
 
     public String getValue(){ return this.value; }
 
+    @Override
+    public boolean equals(Object obj){
+
+        Token token = (Token) obj;
+
+        if(obj == null || getClass() != obj.getClass()){
+            return false;
+        }
+
+        return type == token.getType() && value.equals(((Token) obj).getValue());
+    }
 
     @Override
     public String toString() {
-        return String.format("%s |%s| - (%d:%d)", token, value, lineNumber, characterPosition);
+        return String.format("%s |%s| - (%d:%d)", type, value, lineNumber, characterPosition);
     }
 }
