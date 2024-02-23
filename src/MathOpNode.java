@@ -28,11 +28,6 @@ public class MathOpNode extends Node {
     }
 
     @Override
-    protected String getType() {
-        return "MathOpNode";
-    }
-
-    @Override
     protected String getValue() {
         return this.left + " " + this.operation.getSymbol() + " " + this.right;
 

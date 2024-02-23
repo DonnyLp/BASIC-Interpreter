@@ -8,12 +8,9 @@ public class IntegerNode extends Node{
     }
 
     @Override
-    protected String getType() {
-        return "IntegerNode";
-    }
-
-    @Override
     protected String getValue() {
         return Integer.toString(number);
     }
+
+
 }
