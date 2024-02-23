@@ -6,7 +6,7 @@ public class TokenHandler {
     //Member Variables
     private LinkedList<Token> tokens = new LinkedList<>();
 
-    //Method declerations
+    //Method declarations
     public TokenHandler(LinkedList<Token> tokens){
         this.tokens = tokens;
     }
