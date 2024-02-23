@@ -250,7 +250,7 @@ public class Lexer {
         this.singleCharSymbols.put("(", Token.TokenType.LPAREN);
         this.singleCharSymbols.put(")", Token.TokenType.RPAREN);
         this.singleCharSymbols.put("+", Token.TokenType.ADD);
-        this.singleCharSymbols.put("-", Token.TokenType.SUBTRACT);
+        this.singleCharSymbols.put("-", Token.TokenType.MINUS);
         this.singleCharSymbols.put("*", Token.TokenType.MULTIPLY);
         this.singleCharSymbols.put("/", Token.TokenType.DIVIDE);
         this.singleCharSymbols.put(",", Token.TokenType.COMMA);
