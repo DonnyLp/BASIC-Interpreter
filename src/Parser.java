@@ -1,4 +1,5 @@
 import java.util.LinkedList;
+import java.util.MissingFormatArgumentException;
 import java.util.Optional;
 
 
@@ -43,35 +44,57 @@ public class Parser {
         return null;
     }
 
-    /*
-    Understand: Creates an appropriate Node either FloatNode, IntegerNode, or Node from calling Expression
-    Match: If cases
-    Plan:
-     */
+    //Handles the factor of the expression
     public Node factor(){
 
+        boolean isNegative = false;
 
         //Create optional token variables for the sign and value of the number
-        Optional<Token> minusOptional = handler.matchAndRemove(Token.TokenType.MINUS);
+        Optional<Token> signOptional = handler.matchAndRemove(Token.TokenType.MINUS);
         Optional<Token> valueOptional = handler.matchAndRemove(Token.TokenType.NUMBER);
 
         //Create regular token variables for the sign and the number
-        Token signToken;
         Token valueToken;
 
+        //Handle embedded expression case
+        if (valueOptional.isEmpty() && signOptional.isEmpty()){
 
-        if(minusOptional.isEmpty() && valueOptional.isEmpty()) return null;
+            if (handler.matchAndRemove(Token.TokenType.LPAREN).isPresent()){
 
-        //
+                Node node = expression();
 
-        //Check for negative
+                if(handler.matchAndRemove(Token.TokenType.RPAREN).isEmpty()){
+                    throw new MissingFormatArgumentException("Missing closing parenthesis");
+                }
 
+                return node;
+            }
+            return null;
+        }
 
-        //Check for either integer node or float node and return either
+        //Handle different number cases i.e. Float or Integer
+        if (signOptional.isPresent()) isNegative = true;
 
+        if(valueOptional.isEmpty()) return null;
 
-        //Return Expression
-        return null;
+        valueToken = valueOptional.get();
+
+        if(valueToken.getValue().contains(".")){
+
+            float floatNumber = Float.parseFloat(valueToken.getValue());
+
+            if(isNegative) floatNumber = -floatNumber;
+
+            return new FloatNode(floatNumber);
+
+        }
+        else{
+            int integerNumber = Integer.parseInt(valueToken.getValue());
+
+            if(isNegative) integerNumber = -integerNumber;
+
+            return  new IntegerNode(integerNumber);
+        }
     }
 
 }
