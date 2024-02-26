@@ -22,7 +22,7 @@ public class TokenHandler {
 
     //Checks for more tokens in the list
     public boolean moreTokens(){
-        return tokens.isEmpty();
+        return !tokens.isEmpty();
     }
 
     //Checks if passed in token type matches the head of the list's token type and handles
