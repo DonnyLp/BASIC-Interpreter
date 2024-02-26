@@ -1,19 +1,19 @@
 public class MathOpNode extends Node {
 
     //Member variables
-    private Node left;
-    private Node right;
-    private MathOperation operation;
+    private final Node left;
+    private final Node right;
+    private final MathOperation operation;
 
-    public MathOpNode(Node left, MathOperation operation, Node right){
+    public MathOpNode(Node left, Token.TokenType operator, Node right){
         this.left = left;
-        this.operation = operation;
+        this.operation = MathOperation.valueOf(operator.name());
         this.right = right;
     }
 
     public enum MathOperation{
         ADD('+'),
-        SUBTRACT('-'),
+        MINUS('-'),
         MULTIPLY('*'),
         DIVIDE('/');
 
@@ -28,7 +28,7 @@ public class MathOpNode extends Node {
     }
 
     @Override
-    protected String getValue() {
+    public String toString() {
         return this.left + " " + this.operation.getSymbol() + " " + this.right;
 
     }
