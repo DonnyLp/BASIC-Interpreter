@@ -7,7 +7,7 @@ public class FloatNode extends Node{
     }
 
     @Override
-    protected String getValue() {
+    public String toString() {
         return Float.toString(floatNumber);
     }
 }

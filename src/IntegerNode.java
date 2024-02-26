@@ -8,7 +8,7 @@ public class IntegerNode extends Node{
     }
 
     @Override
-    protected String getValue() {
+    public String toString() {
         return Integer.toString(number);
     }
 
