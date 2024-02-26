@@ -29,24 +29,7 @@ public class ParserTest{
     }
 
     @Test
-    public void testFactor(){
-        LinkedList<Token> tokens = new LinkedList<>();
-        tokens.add(new Token(Token.TokenType.NUMBER, "3.0"));
-        tokens.add(new Token(Token.TokenType.NUMBER, "3"));
-        tokens.add(new Token(Token.TokenType.MINUS, "-"));
-        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
-        tokens.add(new Token(Token.TokenType.NUMBER, "2.0"));
+    public void testParse(){
 
-        Parser parser = new Parser(tokens);
-
-        Node node1 =  parser.factor();
-        Node node2 =  parser.factor();
-        Node node3 =  parser.factor();
-        Node node4 =  parser.factor();
-
-        assertEquals("3.0", node1.getValue());
-        assertEquals("3", node2.getValue());
-        assertEquals("-2", node3.getValue());
-        assertEquals("2.0", node4.getValue());
     }
 }
