@@ -1,6 +1,4 @@
-import java.util.LinkedList;
-import java.util.MissingFormatArgumentException;
-import java.util.Optional;
+import java.util.*;
 
 
 public class Parser {
@@ -17,7 +15,21 @@ public class Parser {
 
     //Calls expression and returns node of type, "ProgramNode"
     public Node parse(){
-        return null;
+        //Create list of tokens to pass into ProgramNode
+        List<Node> nodes = new ArrayList<>();
+
+        //Loop while there's still more tokens and look for expressions
+        while(handler.moreTokens()){
+
+            handleSeparators();
+
+            //Look for expressions and add to list
+
+            nodes.add(expression());
+
+            handleSeparators();
+        }
+        return new ProgramNode(nodes);
     }
 
 
@@ -36,12 +48,30 @@ public class Parser {
     }
 
     public Node expression(){
-
-        return null;
+        //Set the left node to the result of factor
+        Node left = term();
+        //Loop while the next token is either a, "+" or "-",
+        //Create MathOpNode with right node being the result of term
+        while (handler.peek(0).isPresent() && isAddOrSubtract(handler.peek(0))){
+            Token operator = handler.peek(0).get();
+            handler.matchAndRemove(operator.getType());
+            left = new MathOpNode(left, operator.getType(), term());
+        }
+        return left;
     }
 
     public Node term(){
-        return null;
+        //Set the left node to the result of factor
+        Node left = factor();
+        //Loop while the next token is either a, "*" or "/"
+        //Create MathOpNode and set the right node to the result of factor
+        while (handler.peek(0).isPresent() && isMultiplyOrDivide(handler.peek(0))){
+            Token operator = handler.peek(0).get();
+            handler.matchAndRemove(operator.getType());
+            left = new MathOpNode(left, operator.getType(), factor());
+        }
+
+        return left;
     }
 
     //Handles the factor of the expression
@@ -97,4 +127,21 @@ public class Parser {
         }
     }
 
+    //Helper Method for term operator case
+    public boolean isMultiplyOrDivide(Optional<Token> operator){
+        if(operator.isPresent() && operator.get().getValue() != null){
+            String operatorValue = operator.get().getValue();
+            return operatorValue.equals("*") || operatorValue.equals("/");
+        }
+        return false;
+    }
+
+    //Helper Method for expression operator case
+    public boolean isAddOrSubtract(Optional<Token> operator){
+        if(operator.isPresent() && operator.get().getValue() != null){
+            String operatorValue = operator.get().getValue();
+            return operatorValue.equals("+") || operatorValue.equals("-");
+        }
+        return false;
+    }
 }
