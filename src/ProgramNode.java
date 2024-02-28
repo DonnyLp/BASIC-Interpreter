@@ -1,11 +1,22 @@
+import java.util.List;
+
 public class ProgramNode extends Node{
-    @Override
-    protected String getType() {
-        return null;
+
+    private final List<Node> nodes;
+
+    public ProgramNode(List<Node> nodes){
+        this.nodes = nodes;
     }
 
     @Override
-    protected String getValue() {
-        return null;
+    public String toString() {
+        StringBuilder astTree = new StringBuilder();
+        for (Node node : nodes) {
+            astTree.append(node.toString());
+            astTree.append("\n");
+        }
+        return astTree.toString();
     }
+
+
 }
