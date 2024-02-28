@@ -47,7 +47,7 @@ public class Parser {
 
     }
 
-    public Node expression(){
+    private Node expression(){
         //Set the left node to the result of factor
         Node left = term();
         //Loop while the next token is either a, "+" or "-",
@@ -60,7 +60,7 @@ public class Parser {
         return left;
     }
 
-    public Node term(){
+    private Node term(){
         //Set the left node to the result of factor
         Node left = factor();
         //Loop while the next token is either a, "*" or "/"
@@ -75,7 +75,7 @@ public class Parser {
     }
 
     //Handles the factor of the expression
-    public Node factor(){
+    private Node factor(){
 
         boolean isNegative = false;
 
@@ -109,6 +109,7 @@ public class Parser {
 
         valueToken = valueOptional.get();
 
+        //Check for float or integer and return the appropriate node
         if(valueToken.getValue().contains(".")){
 
             float floatNumber = Float.parseFloat(valueToken.getValue());
@@ -128,7 +129,7 @@ public class Parser {
     }
 
     //Helper Method for term operator case
-    public boolean isMultiplyOrDivide(Optional<Token> operator){
+    private boolean isMultiplyOrDivide(Optional<Token> operator){
         if(operator.isPresent() && operator.get().getValue() != null){
             String operatorValue = operator.get().getValue();
             return operatorValue.equals("*") || operatorValue.equals("/");
@@ -137,7 +138,7 @@ public class Parser {
     }
 
     //Helper Method for expression operator case
-    public boolean isAddOrSubtract(Optional<Token> operator){
+    private boolean isAddOrSubtract(Optional<Token> operator){
         if(operator.isPresent() && operator.get().getValue() != null){
             String operatorValue = operator.get().getValue();
             return operatorValue.equals("+") || operatorValue.equals("-");
