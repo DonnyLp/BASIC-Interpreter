@@ -18,9 +18,9 @@ public class Basic {
         parser = new Parser(output);
 
         //Print tokens
-       for(Token token: tokens){
-           System.out.println(token);
-       }
+//       for(Token token: tokens){
+//           System.out.println(token);
+//       }
 
        //Print AST
         System.out.println(parser.parse());
