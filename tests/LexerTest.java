@@ -70,7 +70,7 @@ public class LexerTest {
         assertEquals("var", token.getValue());
         token = lexer.nexToken();
 
-        assertEquals(Token.TokenType.ADD, token.getType());
+        assertEquals(Token.TokenType.PLUS, token.getType());
         assertEquals("+", token.getValue());
         token = lexer.nexToken();
 

@@ -12,7 +12,7 @@ public class MathOpNode extends Node {
     }
 
     public enum MathOperation{
-        ADD('+'),
+        PLUS('+'),
         MINUS('-'),
         MULTIPLY('*'),
         DIVIDE('/');
@@ -29,7 +29,7 @@ public class MathOpNode extends Node {
 
     @Override
     public String toString() {
-        return this.left + " " + this.operation.getSymbol() + " " + this.right;
+        return "(" +this.left + " " + this.operation.getSymbol() + " " +  this.right + ")";
 
     }
 }
