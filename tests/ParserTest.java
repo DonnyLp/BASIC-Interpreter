@@ -1,8 +1,5 @@
 import org.junit.Test;
-
-import java.awt.geom.Line2D;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 import static org.junit.Assert.*;
@@ -39,7 +36,7 @@ public class ParserTest{
         Lexer lexer = new Lexer("test.txt");
         Parser parser = new Parser(lexer.lex());
 
-        Node astTree = (ProgramNode) parser.parse();
+        Node astTree =  parser.parse();
 
         assertEquals("((9 - ((2 * 10) / 2)) + ((3 / 4) * 10))\n", astTree.toString());
 
@@ -53,7 +50,7 @@ public class ParserTest{
         tokens.add(new Token(Token.TokenType.PLUS,"+"));
         tokens.add(new Token(Token.TokenType.NUMBER,"9"));
         Parser parser = new Parser(tokens);
-        Node astTree = (ProgramNode) parser.parse();
+        Node astTree = parser.parse();
 
         assertEquals("(8 + 9)\n", astTree.toString());
 
@@ -67,7 +64,7 @@ public class ParserTest{
         tokens.add(new Token(Token.TokenType.MINUS, "-"));
         tokens.add(new Token(Token.TokenType.NUMBER, "9"));
        Parser parser = new Parser(tokens);
-       Node astTree = (ProgramNode) parser.parse();
+       Node astTree = parser.parse();
 
         assertEquals("(11 - 9)\n", astTree.toString());
 
@@ -88,7 +85,7 @@ public class ParserTest{
         tokens.add(new Token(Token.TokenType.NUMBER, "2"));
 
         Parser parser = new Parser(tokens);
-        Node astTree = (ProgramNode) parser.parse();
+        Node astTree = parser.parse();
 
         assertEquals("((11 * (10 / 3)) + 2)\n", astTree.toString());
     }
@@ -108,7 +105,7 @@ public class ParserTest{
         tokens.add(new Token(Token.TokenType.NUMBER, "2"));
 
         Parser parser = new Parser(tokens);
-        Node astTree = (ProgramNode) parser.parse();
+        Node astTree = parser.parse();
 
         assertEquals("((10 - (3 * 11)) + 2)\n",astTree.toString());
         tokens.clear();
