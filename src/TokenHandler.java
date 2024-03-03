@@ -28,8 +28,15 @@ public class TokenHandler {
     //Checks if passed in token type matches the head of the list's token type and handles
     Optional<Token> matchAndRemove(Token.TokenType type){
 
-        //Grab the head of the list
-        Token head = tokens.getFirst();
+        Token head;
+
+        //Grab the head of the list if there's more tokens
+        if(moreTokens()) {
+            head = tokens.getFirst();
+        }
+        else {
+            return Optional.empty();
+        }
 
         //Check if passed in token is same type as head of list
         if(type != head.getType()){
