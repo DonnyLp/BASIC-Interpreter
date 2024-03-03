@@ -111,4 +111,42 @@ public class ParserTest{
         tokens.clear();
     }
 
+    @Test
+    public void testAssignment(){
+        LinkedList<Token> tokens = new LinkedList<>();
+
+        //Assignment
+        tokens.add(new Token(Token.TokenType.WORD, "x"));
+        tokens.add(new Token(Token.TokenType.EQUALS, "="));
+        tokens.add(new Token(Token.TokenType.WORD, "x"));
+        tokens.add(new Token(Token.TokenType.MULTIPLY, "*"));
+        tokens.add(new Token(Token.TokenType.NUMBER, "11"));
+
+        Parser parser = new Parser(tokens);
+        String assignment = parser.assignment().toString();
+        System.out.print(assignment);
+        assertEquals("x = (x * 11)", assignment);
+    }
+
+    @Test
+    public void testPrint(){
+        LinkedList<Token> tokens = new LinkedList<>();
+
+        //Print
+        tokens.add(new Token(Token.TokenType.PRINT, "PRINT"));
+        tokens.add(new Token(Token.TokenType.NUMBER, "1"));
+        tokens.add(new Token(Token.TokenType.PLUS, "+"));
+        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
+        tokens.add(new Token(Token.TokenType.PLUS, "+"));
+        tokens.add(new Token(Token.TokenType.NUMBER, "3"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.WORD, "x"));
+
+        Parser parser = new Parser(tokens);
+        String print = parser.printStatement().toString();
+        System.out.print(print);
+    }
+
 }
