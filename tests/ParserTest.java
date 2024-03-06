@@ -30,6 +30,7 @@ public class ParserTest{
         assertFalse(parser.handleSeparators());
     }
 
+    //This test exclusively tests input from the test file and tests the statement and statements methods
     @Test
     public void testParse() throws IOException {
         LinkedList<Token> tokens = new LinkedList<>();
@@ -38,77 +39,118 @@ public class ParserTest{
 
         Node astTree =  parser.parse();
 
-        assertEquals("((9 - ((2 * 10) / 2)) + ((3 / 4) * 10))\n", astTree.toString());
+        //This assert includes two assignments and elements of a print call
+        assertEquals(" b = (18 / (3 + 3))  x = ((9 * 10) + b)  [(9 * 10)][x][(10 / 9)][b] ", astTree.toString());
 
     }
 
     @Test
-    public void testAddition(){
+    public void testAssignment(){
         LinkedList<Token> tokens = new LinkedList<>();
 
-        tokens.add(new Token(Token.TokenType.NUMBER,"8"));
-        tokens.add(new Token(Token.TokenType.PLUS,"+"));
-        tokens.add(new Token(Token.TokenType.NUMBER,"9"));
-        Parser parser = new Parser(tokens);
-        Node astTree = parser.parse();
-
-        assertEquals("(8 + 9)\n", astTree.toString());
-
-    }
-
-    @Test
-    public void testMinus(){
-        LinkedList<Token> tokens = new LinkedList<>();
-
-        tokens.add(new Token(Token.TokenType.NUMBER, "11"));
-        tokens.add(new Token(Token.TokenType.MINUS, "-"));
-        tokens.add(new Token(Token.TokenType.NUMBER, "9"));
-       Parser parser = new Parser(tokens);
-       Node astTree = parser.parse();
-
-        assertEquals("(11 - 9)\n", astTree.toString());
-
-    }
-    @Test
-    public void testParenthesis(){
-
-        LinkedList<Token> tokens = new LinkedList<>();
-
-        tokens.add(new Token(Token.TokenType.NUMBER, "11"));
-        tokens.add(new Token(Token.TokenType.MULTIPLY, "*"));
-        tokens.add(new Token(Token.TokenType.LPAREN, "("));
-        tokens.add(new Token(Token.TokenType.NUMBER, "10"));
-        tokens.add(new Token(Token.TokenType.DIVIDE, "/"));
-        tokens.add(new Token(Token.TokenType.NUMBER, "3"));
-        tokens.add(new Token(Token.TokenType.RPAREN, ")"));
-        tokens.add(new Token(Token.TokenType.PLUS, "+"));
-        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
-
-        Parser parser = new Parser(tokens);
-        Node astTree = parser.parse();
-
-        assertEquals("((11 * (10 / 3)) + 2)\n", astTree.toString());
-    }
-
-    @Test
-    public void testPEMDAS(){
-
-        LinkedList<Token> tokens = new LinkedList<>();
-
-        //PEMDAS
-        tokens.add(new Token(Token.TokenType.NUMBER, "10"));
-        tokens.add(new Token(Token.TokenType.MINUS, "-"));
-        tokens.add(new Token(Token.TokenType.NUMBER, "3"));
+        //Assignment
+        tokens.add(new Token(Token.TokenType.WORD, "x"));
+        tokens.add(new Token(Token.TokenType.EQUALS, "="));
+        tokens.add(new Token(Token.TokenType.WORD, "x"));
         tokens.add(new Token(Token.TokenType.MULTIPLY, "*"));
         tokens.add(new Token(Token.TokenType.NUMBER, "11"));
-        tokens.add(new Token(Token.TokenType.PLUS, "+"));
-        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
 
         Parser parser = new Parser(tokens);
-        Node astTree = parser.parse();
-
-        assertEquals("((10 - (3 * 11)) + 2)\n",astTree.toString());
-        tokens.clear();
+        String assignment = parser.assignment().toString();
+        System.out.print(assignment);
+        assertEquals("x = (x * 11)", assignment);
     }
+
+    @Test
+    public void testPrint(){
+        LinkedList<Token> tokens = new LinkedList<>();
+
+        //Print
+        tokens.add(new Token(Token.TokenType.PRINT, "PRINT"));
+        tokens.add(new Token(Token.TokenType.NUMBER, "1"));
+        tokens.add(new Token(Token.TokenType.PLUS, "+"));
+        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
+        tokens.add(new Token(Token.TokenType.PLUS, "+"));
+        tokens.add(new Token(Token.TokenType.NUMBER, "3"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.WORD, "x"));
+
+        Parser parser = new Parser(tokens);
+        String printList = parser.printStatement().toString();
+        assertEquals("[(1 + 2)][(2 + 3)][x]", printList);
+    }
+    //This collection of tests have no use for this version of the parser
+//    @Test
+//    public void testAddition(){
+//        LinkedList<Token> tokens = new LinkedList<>();
+//
+//        tokens.add(new Token(Token.TokenType.NUMBER,"8"));
+//        tokens.add(new Token(Token.TokenType.PLUS,"+"));
+//        tokens.add(new Token(Token.TokenType.NUMBER,"9"));
+//        Parser parser = new Parser(tokens);
+//        Node astTree = parser.parse();
+//
+//        assertEquals("(8 + 9)\n", astTree.toString());
+//
+//    }
+//
+//    @Test
+//    public void testMinus(){
+//        LinkedList<Token> tokens = new LinkedList<>();
+//
+//        tokens.add(new Token(Token.TokenType.NUMBER, "11"));
+//        tokens.add(new Token(Token.TokenType.MINUS, "-"));
+//        tokens.add(new Token(Token.TokenType.NUMBER, "9"));
+//       Parser parser = new Parser(tokens);
+//       Node astTree = parser.parse();
+//
+//        assertEquals("(11 - 9)\n", astTree.toString());
+//
+//    }
+//    @Test
+//    public void testParenthesis(){
+//
+//        LinkedList<Token> tokens = new LinkedList<>();
+//
+//        tokens.add(new Token(Token.TokenType.NUMBER, "11"));
+//        tokens.add(new Token(Token.TokenType.MULTIPLY, "*"));
+//        tokens.add(new Token(Token.TokenType.LPAREN, "("));
+//        tokens.add(new Token(Token.TokenType.NUMBER, "10"));
+//        tokens.add(new Token(Token.TokenType.DIVIDE, "/"));
+//        tokens.add(new Token(Token.TokenType.NUMBER, "3"));
+//        tokens.add(new Token(Token.TokenType.RPAREN, ")"));
+//        tokens.add(new Token(Token.TokenType.PLUS, "+"));
+//        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
+//
+//        Parser parser = new Parser(tokens);
+//        Node astTree = parser.parse();
+//
+//        assertEquals("((11 * (10 / 3)) + 2)\n", astTree.toString());
+//    }
+//
+//    @Test
+//    public void testPEMDAS(){
+//
+//        LinkedList<Token> tokens = new LinkedList<>();
+//
+//        //PEMDAS
+//        tokens.add(new Token(Token.TokenType.NUMBER, "10"));
+//        tokens.add(new Token(Token.TokenType.MINUS, "-"));
+//        tokens.add(new Token(Token.TokenType.NUMBER, "3"));
+//        tokens.add(new Token(Token.TokenType.MULTIPLY, "*"));
+//        tokens.add(new Token(Token.TokenType.NUMBER, "11"));
+//        tokens.add(new Token(Token.TokenType.PLUS, "+"));
+//        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
+//
+//        Parser parser = new Parser(tokens);
+//        Node astTree = parser.parse();
+//
+//        assertEquals("((10 - (3 * 11)) + 2)\n",astTree.toString());
+//        tokens.clear();
+//    }
+
+
 
 }

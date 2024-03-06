@@ -18,21 +18,104 @@ public class Parser {
         //Create list of tokens to pass into ProgramNode
         List<Node> nodes = new ArrayList<>();
 
-        //Loop while there's still more tokens and look for expressions
+        //Loop while there's still more tokens
         while(handler.moreTokens()){
 
-            handleSeparators();
+            //Look for statements and add to list
+            nodes.add(statements());
 
-            //Look for expressions and add to list
-
-            nodes.add(expression());
-
-            handleSeparators();
         }
         return new ProgramNode(nodes);
     }
 
 
+    //Parse all existing statements and return StatementsNode
+    public StatementsNode statements(){
+        //Call statements while statements doesn't return null
+        StatementNode statement;
+
+        List<StatementNode> statementsList = new ArrayList<>();
+        while((statement = statement())!= null && handler.moreTokens()){
+            statementsList.add(statement);
+            handleSeparators();
+        }
+        return new StatementsNode(statementsList);
+
+    }
+
+    //Handle a singular statement, for now Print Node and Assignment Node
+    public StatementNode statement(){
+
+        //Create a statement node to hold the current statement
+        StatementNode statement = null;
+
+        //Check if next token exists, find corresponding statement type, process the tokens for the statement
+        //Return the corresponding statement
+        if(handler.peek(0).isPresent()){
+            switch(handler.peek(0).get().getType()){
+
+                case WORD -> statement = assignment();
+                case PRINT -> statement = printStatement();
+                //Handle rest of the statements
+
+            }
+            return statement;
+        }
+
+        return null;
+    }
+
+    //Handle assignments and returns an AssignmentNode
+    public AssignmentNode assignment(){
+
+        //Define Nodes for the variable name and value
+        VariableNode name;
+        Node value;
+
+        //Create optionals for the variable name and equals sign for error checking
+        Optional<Token> variableName = handler.matchAndRemove(Token.TokenType.WORD);
+        Optional<Token> equalSign = handler.matchAndRemove(Token.TokenType.EQUALS);
+
+        //Verify that the variable name and equals sign for assignment exists
+        if(variableName.isPresent() && equalSign.isPresent()){
+             name = new VariableNode(variableName.get().getValue());
+             value = expression();
+             return new AssignmentNode(name,value);
+        }
+
+        return null;
+    }
+
+    //Handle print statements and return a PrintNode
+    public PrintNode printStatement(){
+        //Create an Optional Token for PRINT
+        Optional<Token> printToken = handler.matchAndRemove(Token.TokenType.PRINT);
+
+        //If the optional token is empty then return null
+        if(printToken.isEmpty()) return null;
+
+        //Call the "print-list" method to obtain comma seperated list
+        List<Node> printList = printList();
+
+        return new PrintNode(printList);
+    }
+
+    //Handle the comma seperated list of items to print
+    private List<Node> printList(){
+        //Create a list of nodes to store the print values
+        List<Node> printList = new ArrayList<>();
+
+        //Add the first expression to the print list
+        printList.add(expression());
+
+        //Loop while the current token is a comma
+        while(handler.peek(0).isPresent() && handler.peek(0).get().getType() == Token.TokenType.COMMA){
+            handler.matchAndRemove(Token.TokenType.COMMA);
+            printList.add(expression());
+        }
+        
+        return printList;
+    }
     //Handles new line/empty line tokens and returns boolean
     public boolean handleSeparators(){
 
@@ -79,15 +162,13 @@ public class Parser {
 
         boolean isNegative = false;
 
-        //Create optional token variables for the sign and value of the number
+        //Create optional token variables for the sign, number and variable
         Optional<Token> signOptional = handler.matchAndRemove(Token.TokenType.MINUS);
-        Optional<Token> valueOptional = handler.matchAndRemove(Token.TokenType.NUMBER);
-
-        //Create regular token variables for the sign and the number
-        Token valueToken;
+        Optional<Token> numberOptional = handler.matchAndRemove(Token.TokenType.NUMBER);
+        Optional <Token> variableOptional = handler.matchAndRemove(Token.TokenType.WORD);
 
         //Handle embedded expression case
-        if (valueOptional.isEmpty() && signOptional.isEmpty()){
+        if (numberOptional.isEmpty() && signOptional.isEmpty() && variableOptional.isEmpty()){
 
             if (handler.matchAndRemove(Token.TokenType.LPAREN).isPresent()){
 
@@ -101,18 +182,21 @@ public class Parser {
             }
             return null;
         }
-
+        //Handle variable case
+        if(variableOptional.isPresent()) {
+            return new VariableNode(variableOptional.get().getValue());
+        }
         //Handle different number cases i.e. Float or Integer
         if (signOptional.isPresent()) isNegative = true;
 
-        if(valueOptional.isEmpty()) return null;
+        if(numberOptional.isEmpty()) return null;
 
-        valueToken = valueOptional.get();
+        Token numberToken = numberOptional.get();
 
         //Check for float or integer and return the appropriate node
-        if(valueToken.getValue().contains(".")){
+        if(numberToken.getValue().contains(".")){
 
-            float floatNumber = Float.parseFloat(valueToken.getValue());
+            float floatNumber = Float.parseFloat(numberToken.getValue());
 
             if(isNegative) floatNumber = -floatNumber;
 
@@ -120,12 +204,13 @@ public class Parser {
 
         }
         else{
-            int integerNumber = Integer.parseInt(valueToken.getValue());
+            int integerNumber = Integer.parseInt(numberToken.getValue());
 
             if(isNegative) integerNumber = -integerNumber;
 
             return  new IntegerNode(integerNumber);
-        }
+        } 
+
     }
 
     //Helper Method for term operator case

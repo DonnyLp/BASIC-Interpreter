@@ -214,6 +214,7 @@ public class Lexer {
         else if (Character.isDigit(current)) newState = state.NUMBER;
         else if (current == '"') newState = state.STRINGLITERAL;
         else if (current == '\n') newState = state.ENDOFLINE;
+        else if (current == '$' || current == '%') newState = state.WORD;
         else if (this.singleCharSymbols.containsKey(Character.toString(current))) newState = state.SYMBOL;
         return newState;
     }
