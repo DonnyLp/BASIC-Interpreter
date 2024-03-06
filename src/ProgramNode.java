@@ -13,7 +13,6 @@ public class ProgramNode extends Node{
         StringBuilder astTree = new StringBuilder();
         for (Node node : nodes) {
             astTree.append(node.toString());
-            astTree.append("\n");
         }
         return astTree.toString();
     }

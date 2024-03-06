@@ -11,9 +11,9 @@ public class StatementsNode extends StatementNode {
     public String toString(){
         StringBuilder statementsBuilder = new StringBuilder();
         for (StatementNode statement : statements){
-            statementsBuilder.append("\"");
+            statementsBuilder.append(" ");
             statementsBuilder.append(statement.toString());
-            statementsBuilder.append("\"");
+            statementsBuilder.append(" ");
         }
         return statementsBuilder.toString();
     }

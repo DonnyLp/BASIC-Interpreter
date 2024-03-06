@@ -21,12 +21,9 @@ public class Parser {
         //Loop while there's still more tokens
         while(handler.moreTokens()){
 
-            handleSeparators();
-
             //Look for statements and add to list
             nodes.add(statements());
 
-            handleSeparators();
         }
         return new ProgramNode(nodes);
     }
@@ -36,9 +33,11 @@ public class Parser {
     public StatementsNode statements(){
         //Call statements while statements doesn't return null
         StatementNode statement;
+
         List<StatementNode> statementsList = new ArrayList<>();
-        while((statement = statement())!= null){   
+        while((statement = statement())!= null && handler.moreTokens()){
             statementsList.add(statement);
+            handleSeparators();
         }
         return new StatementsNode(statementsList);
 
@@ -57,7 +56,7 @@ public class Parser {
 
                 case WORD -> statement = assignment();
                 case PRINT -> statement = printStatement();
-                //Handle the rest of the statements
+                //Handle rest of the statements
 
             }
             return statement;
@@ -69,7 +68,7 @@ public class Parser {
     //Handle assignments and returns an AssignmentNode
     public AssignmentNode assignment(){
 
-        //Define Node for variable name and value
+        //Define Nodes for the variable name and value
         VariableNode name;
         Node value;
 
@@ -77,7 +76,7 @@ public class Parser {
         Optional<Token> variableName = handler.matchAndRemove(Token.TokenType.WORD);
         Optional<Token> equalSign = handler.matchAndRemove(Token.TokenType.EQUALS);
 
-        //Check if the variable name and equals sign for assignment exists
+        //Verify that the variable name and equals sign for assignment exists
         if(variableName.isPresent() && equalSign.isPresent()){
              name = new VariableNode(variableName.get().getValue());
              value = expression();
@@ -95,7 +94,7 @@ public class Parser {
         //If the optional token is empty then return null
         if(printToken.isEmpty()) return null;
 
-        //Call printlist method to obtain comma seperated list
+        //Call the "print-list" method to obtain comma seperated list
         List<Node> printList = printList();
 
         return new PrintNode(printList);

@@ -11,9 +11,9 @@ public class PrintNode extends StatementNode{
     public String toString(){
        StringBuilder printString = new StringBuilder();
         for (Node printElement : printList){
-            printString.append("|");
+            printString.append("[");
            printString.append(printElement.toString());
-           printString.append("|");
+           printString.append("]");
        }
        return printString.toString();
     }
