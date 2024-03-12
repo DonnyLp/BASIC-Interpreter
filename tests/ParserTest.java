@@ -45,6 +45,61 @@ public class ParserTest{
     }
 
     @Test
+    public void testInput(){}
+    @Test
+    public void testData(){}
+    @Test
+    public void testRead(){
+        LinkedList<Token> tokens = new LinkedList<>();
+
+        tokens.add(new Token(Token.TokenType.READ, "READ"));
+        tokens.add(new Token(Token.TokenType.WORD, "a$"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.WORD, "a%"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.WORD, "a"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.WORD, "a$"));
+
+        Parser parse = new Parser(tokens);
+        assertEquals("[a$, a%, a, a$]", parse.readStatement().toString());
+    }
+    @Test
+    public void testStringLiteral(){
+        //StringLiteral tokens
+        LinkedList <Token> tokens = new LinkedList<>();
+        tokens.add(new Token(Token.TokenType.STRINGLITERAL, "\"Test String Literal\""));
+
+        Parser parser = new Parser(tokens);
+        String stringLiteral = parser.stringLiteral().toString();
+        assertEquals("[\"Test String Literal\"]", parser.stringLiteral().toString());
+    }
+    @Test
+    public void testPrint(){
+        LinkedList<Token> tokens = new LinkedList<>();
+
+        //Print
+        tokens.add(new Token(Token.TokenType.PRINT, "PRINT"));
+        tokens.add(new Token(Token.TokenType.NUMBER, "1"));
+        tokens.add(new Token(Token.TokenType.PLUS, "+"));
+        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
+        tokens.add(new Token(Token.TokenType.PLUS, "+"));
+        tokens.add(new Token(Token.TokenType.NUMBER, "3"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.WORD, "x"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.STRINGLITERAL, "\"Test Literal\""));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.WORD, "name$"));
+
+        Parser parser = new Parser(tokens);
+        String printList = parser.printStatement().toString();
+        assertEquals("[(1 + 2), (2 + 3), x, [\"Test Literal\"], name$]", printList);
+    }
+
+    @Test
     public void testAssignment(){
         LinkedList<Token> tokens = new LinkedList<>();
 
@@ -61,26 +116,9 @@ public class ParserTest{
         assertEquals("x = (x * 11)", assignment);
     }
 
-    @Test
-    public void testPrint(){
-        LinkedList<Token> tokens = new LinkedList<>();
 
-        //Print
-        tokens.add(new Token(Token.TokenType.PRINT, "PRINT"));
-        tokens.add(new Token(Token.TokenType.NUMBER, "1"));
-        tokens.add(new Token(Token.TokenType.PLUS, "+"));
-        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
-        tokens.add(new Token(Token.TokenType.COMMA, ","));
-        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
-        tokens.add(new Token(Token.TokenType.PLUS, "+"));
-        tokens.add(new Token(Token.TokenType.NUMBER, "3"));
-        tokens.add(new Token(Token.TokenType.COMMA, ","));
-        tokens.add(new Token(Token.TokenType.WORD, "x"));
 
-        Parser parser = new Parser(tokens);
-        String printList = parser.printStatement().toString();
-        assertEquals("[(1 + 2)][(2 + 3)][x]", printList);
-    }
+
     //This collection of tests have no use for this version of the parser
 //    @Test
 //    public void testAddition(){
