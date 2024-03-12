@@ -9,12 +9,6 @@ public class PrintNode extends StatementNode{
 
     @Override
     public String toString(){
-       StringBuilder printString = new StringBuilder();
-        for (Node printElement : printList){
-            printString.append("[");
-           printString.append(printElement.toString());
-           printString.append("]");
-       }
-       return printString.toString();
+       return printList.toString();
     }
 }
