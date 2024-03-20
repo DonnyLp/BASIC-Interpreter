@@ -40,14 +40,45 @@ public class ParserTest{
         Node astTree =  parser.parse();
 
         //This assert includes two assignments and elements of a print call
-        assertEquals(" b = (18 / (3 + 3))  x = ((9 * 10) + b)  [(9 * 10)][x][(10 / 9)][b] ", astTree.toString());
-
+        assertEquals("""
+                x = (3 * 4)
+                INPUT "What is your name and age?"  name$  age\s
+                PRINT "Hi "  name$  " you are "  age  "years old!"\s
+                DATA 10  "testParse"  3.145\s
+                READ random  a$  a%\s
+                """, astTree.toString());
     }
 
     @Test
-    public void testInput(){}
+    public void testInput(){
+        LinkedList<Token> tokens = new LinkedList<>();
+
+        tokens.add(new Token(Token.TokenType.INPUT, "INPUT"));
+        tokens.add(new Token(Token.TokenType.STRINGLITERAL, "\"What is your name and age?\""));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.WORD, "name$"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.WORD, "age"));
+
+        Parser parse = new Parser(tokens);
+        assertEquals("INPUT \"\"What is your name and age?\"\"  name$  age ", parse.parseInputStatement().toString());
+    }
     @Test
-    public void testData(){}
+    public void testData(){
+        LinkedList<Token> tokens = new LinkedList<>();
+
+        tokens.add(new Token(Token.TokenType.DATA, "DATA"));
+        tokens.add(new Token(Token.TokenType.STRINGLITERAL, "\"Test String Literal\""));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.NUMBER, "7.2"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.NUMBER, "8.9"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.NUMBER, "8"));
+
+        Parser parser = new Parser(tokens);
+        assertEquals("DATA \"\"Test String Literal\"\"  7.2  8.9  8 ", parser.parseDataStatement().toString());
+    }
     @Test
     public void testRead(){
         LinkedList<Token> tokens = new LinkedList<>();
@@ -61,8 +92,8 @@ public class ParserTest{
         tokens.add(new Token(Token.TokenType.COMMA, ","));
         tokens.add(new Token(Token.TokenType.WORD, "a$"));
 
-        Parser parse = new Parser(tokens);
-        assertEquals("[a$, a%, a, a$]", parse.readStatement().toString());
+        Parser parser = new Parser(tokens);
+        assertEquals("READ a$  a%  a  a$ ", parser.parseReadStatement().toString());
     }
     @Test
     public void testStringLiteral(){
@@ -71,8 +102,8 @@ public class ParserTest{
         tokens.add(new Token(Token.TokenType.STRINGLITERAL, "\"Test String Literal\""));
 
         Parser parser = new Parser(tokens);
-        String stringLiteral = parser.stringLiteral().toString();
-        assertEquals("[\"Test String Literal\"]", parser.stringLiteral().toString());
+        String stringLiteral = parser.parseStringLiteral().toString();
+        assertEquals("\"\"Test String Literal\"\"", stringLiteral);
     }
     @Test
     public void testPrint(){
@@ -95,8 +126,8 @@ public class ParserTest{
         tokens.add(new Token(Token.TokenType.WORD, "name$"));
 
         Parser parser = new Parser(tokens);
-        String printList = parser.printStatement().toString();
-        assertEquals("[(1 + 2), (2 + 3), x, [\"Test Literal\"], name$]", printList);
+        String printList = parser.parsePrintStatement().toString();
+        assertEquals("PRINT (1 + 2)  (2 + 3)  x  \"\"Test Literal\"\"  name$ ", printList);
     }
 
     @Test
@@ -111,13 +142,10 @@ public class ParserTest{
         tokens.add(new Token(Token.TokenType.NUMBER, "11"));
 
         Parser parser = new Parser(tokens);
-        String assignment = parser.assignment().toString();
+        String assignment = parser.parseAssignment().toString();
         System.out.print(assignment);
         assertEquals("x = (x * 11)", assignment);
     }
-
-
-
 
     //This collection of tests have no use for this version of the parser
 //    @Test
@@ -188,7 +216,5 @@ public class ParserTest{
 //        assertEquals("((10 - (3 * 11)) + 2)\n",astTree.toString());
 //        tokens.clear();
 //    }
-
-
 
 }

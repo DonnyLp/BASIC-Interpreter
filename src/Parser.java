@@ -6,7 +6,6 @@ public class Parser {
     //Member variables
     private final TokenHandler handler;
 
-
     //Methods
     public Parser(LinkedList<Token> tokens){
         handler = new TokenHandler(tokens);
@@ -15,36 +14,36 @@ public class Parser {
 
     //Calls expression and returns node of type, "ProgramNode"
     public Node parse(){
-        //Create list of tokens to pass into ProgramNode
-        List<Node> nodes = new ArrayList<>();
+
+        ProgramNode programList = new ProgramNode();
 
         //Loop while there's still more tokens
         while(handler.moreTokens()){
 
             //Look for statements and add to list
-            nodes.add(statements());
+            programList.add(statements());
 
         }
-        return new ProgramNode(nodes);
+        return programList;
     }
 
 
     //Parse all existing statements and return StatementsNode
     public StatementsNode statements(){
-        //Call statements while statements doesn't return null
-        StatementNode statement;
 
-        List<StatementNode> statementsList = new ArrayList<>();
-        while((statement = statement())!= null && handler.moreTokens()){
+        StatementNode statement;
+        StatementsNode statementsList = new StatementsNode();
+        handleSeparators(); // Handle empty lines at the start of the file
+
+        while((statement = parseStatement())!= null){
             statementsList.add(statement);
             handleSeparators();
         }
-        return new StatementsNode(statementsList);
-
+        return statementsList;
     }
 
     //Handle a singular statement, for now Print Node and Assignment Node
-    public StatementNode statement(){
+    public StatementNode parseStatement(){
 
         //Create a statement node to hold the current statement
         StatementNode statement = null;
@@ -53,137 +52,78 @@ public class Parser {
         //Return the corresponding statement
         if(handler.peek(0).isPresent()){
             switch(handler.peek(0).get().getType()){
-
-                case WORD -> statement = assignment();
-                case PRINT -> statement = printStatement();
-                case STRINGLITERAL -> statement = stringLiteral();
-                case READ -> statement = readStatement();
-                case DATA -> statement = dataStatement();
-                case INPUT -> statement = inputStatement();
+                case WORD -> statement = parseAssignment();
+                case PRINT -> statement = parsePrintStatement();
+                case STRINGLITERAL -> statement = parseStringLiteral();
+                case READ -> statement = parseReadStatement();
+                case DATA -> statement = parseDataStatement();
+                case INPUT -> statement = parseInputStatement();
                 //Handle rest of the statements
-
             }
             return statement;
         }
         return null;
     }
 
-    //Handle input statement
-    public InputNode inputStatement(){
+    public InputNode parseInputStatement(){
+
         Optional<Token> inputToken = handler.matchAndRemove(Token.TokenType.INPUT);
+        InputNode inputList = new InputNode();
 
         if (inputToken.isEmpty()) return null;
 
-        return new InputNode(parseInputList());
-    }
-    //Helper for input statement
-    private List<Node> parseInputList(){
-
-        List<Node> inputList = new ArrayList<>();
-
-        //Handle required stringliteral
+        //Handle the required initial string literal
         Optional<Token> stringLiteral = handler.matchAndRemove(Token.TokenType.STRINGLITERAL);
 
-        if(stringLiteral.isEmpty()) return null;
+        if(stringLiteral.isEmpty()) throw new IllegalStateException("Missing string literal");
 
         inputList.add(new StringNode(stringLiteral.get().getValue()));
+        handler.matchAndRemove(Token.TokenType.COMMA);
 
-       // Append the variables and handle the commas
-        while(handler.peek(0).isPresent() && handler.peek(0).get().getType() == Token.TokenType.COMMA){
-            Optional<Token> commaOptional = handler.matchAndRemove(Token.TokenType.COMMA);
-            if (commaOptional.isEmpty()) return null;
+        //Parse the remaining variable elements
+        parseCommaList(inputList, handler);
 
-            Optional<Token> variable = handler.peek(0);
-
-            if(variable.isEmpty()) return null;
-
-            inputList.add(new VariableNode(variable.get().getValue()));
-
-        }
         return inputList;
     }
 
-    //Handle data statements
-    public DataNode dataStatement(){
+    public DataNode parseDataStatement(){
+
+        DataNode dataList = new DataNode();
         Optional<Token> dataToken = handler.matchAndRemove(Token.TokenType.DATA);
 
         if(dataToken.isEmpty()) return null;
 
-        return new DataNode(parseDataList());
-    }
+        parseCommaList(dataList, handler);
 
-    //Helper for data statements
-    private List<Node> parseDataList(){
-
-        List<Node> dataList = new ArrayList<>();
-
-        //Handle first expression or number
-        Optional<Token> stringLiteral = handler.matchAndRemove(Token.TokenType.STRINGLITERAL);
-
-        if(stringLiteral.isPresent()) {
-            dataList.add(new StringNode(stringLiteral.get().getValue()));
-        }
-        else{
-            dataList.add(expression());
-        }
-
-        while(handler.peek(0).isPresent() && handler.peek(0).get().getType() == Token.TokenType.COMMA){
-            Optional<Token> commaOptional = handler.matchAndRemove(Token.TokenType.COMMA);
-            if (commaOptional.isEmpty()) return null;
-
-            stringLiteral = handler.matchAndRemove(Token.TokenType.STRINGLITERAL);
-
-            if(stringLiteral.isPresent()) {
-                dataList.add(new StringNode(stringLiteral.get().getValue()));
-            }
-            else{
-                dataList.add(expression());
-            }
-
-        }
         return dataList;
     }
-    //Handle read statements
-    public ReadNode readStatement(){
 
+    public ReadNode parseReadStatement(){
+
+        ReadNode readList = new ReadNode();
         Optional<Token> readToken = handler.matchAndRemove(Token.TokenType.READ);
 
         if(readToken.isEmpty()) return null;
 
-        return new ReadNode(parseReadList());
+        parseCommaList(readList, handler);
 
-    }
-    //Helper for processing comma seperated read statements
-    private List<VariableNode> parseReadList(){
-
-        List<VariableNode> readList = new ArrayList<>();
-
-        //Add the first variable Node to the list
-        Optional<Token> variable = handler.matchAndRemove(Token.TokenType.WORD);
-
-        if(variable.isEmpty()) return null;
-
-        readList.add(new VariableNode(variable.get().getValue()));
-
-        //Append the following variables in the comma seperated list
-        while(handler.peek(0).isPresent() && handler.peek(0).get().getType() == Token.TokenType.COMMA){
-            //Remove the comma from the token list and handle exceptions
-            Optional<Token> commaOptional = handler.matchAndRemove(Token.TokenType.COMMA);
-            if (commaOptional.isEmpty()) return null;
-
-            //Append the next variable node to the list
-            variable = handler.matchAndRemove(Token.TokenType.WORD);
-
-            if(variable.isEmpty()) return null;
-
-            readList.add(new VariableNode(variable.get().getValue()));
-
-        }
         return readList;
+
     }
 
-    //Handle string literals
-    public StringNode stringLiteral(){
+    public PrintNode parsePrintStatement(){
+
+        PrintNode printList = new PrintNode();
+        Optional<Token> printToken = handler.matchAndRemove(Token.TokenType.PRINT);
+
+        if(printToken.isEmpty()) return null;
+
+        parseCommaList(printList, handler);
+
+        return printList;
+    }
+
+    public StringNode parseStringLiteral(){
         //Define node for value of string literal
         String stringValue;
 
@@ -196,8 +136,8 @@ public class Parser {
         }
         return null;
     }
-    //Handle assignments and returns an AssignmentNode
-    public AssignmentNode assignment(){
+
+    public AssignmentNode parseAssignment(){
 
         //Define Nodes for the variable name and value
         VariableNode name;
@@ -209,54 +149,54 @@ public class Parser {
 
         //Verify that the variable name and equals sign for assignment exists
         if(variableName.isPresent() && equalSign.isPresent()){
-             name = new VariableNode(variableName.get().getValue());
-             value = expression();
-             return new AssignmentNode(name,value);
+            name = new VariableNode(variableName.get().getValue());
+            value = expression();
+            return new AssignmentNode(name,value);
         }
 
         return null;
     }
 
-    //Handle print statement
-    public PrintNode printStatement(){
+    public void parseCommaList(Addable node, TokenHandler handler){
 
-        Optional<Token> printToken = handler.matchAndRemove(Token.TokenType.PRINT);
+        Optional<Token> token;
 
-        if(printToken.isEmpty()) return null;
-
-        return new PrintNode(printList());
-    }
-
-    //Handle the comma seperated list of items to print
-    private List<Node> printList(){
-        //Create a list of nodes to store the print values
-        List<Node> printList = new ArrayList<>();
-
-        //Add the first expression or string literal to list
-        if(handler.peek(0).isPresent() && handler.peek(0).get().getType() == Token.TokenType.STRINGLITERAL){
-            printList.add(stringLiteral());
-        }
-        else{
-            printList.add(expression());
-        }
-
-        //Append the following elements in the print statement and handle the exisiting commas
-        while(handler.peek(0).isPresent() && handler.peek(0).get().getType() == Token.TokenType.COMMA){
-            //Remove the comma from the token list and handle exceptions
-            Optional<Token> commaOptional = handler.matchAndRemove(Token.TokenType.COMMA);
-            if (commaOptional.isEmpty()) return null;
-
-            //Append the correct type of element to the output list
-            if(handler.peek(0).isPresent() && handler.peek(0).get().getType() == Token.TokenType.STRINGLITERAL){
-                printList.add(stringLiteral());
+        do{
+            //Update the token to the next token in the list
+            if(handler.peek(0).isPresent()){
+                token = Optional.of(handler.peek(0).get());
             }
             else{
-                printList.add(expression());
+                token = Optional.empty();
             }
-        }
-        return printList;
+
+
+            if(token.isPresent()){
+                //PrintNode and DataNode are parsed similarly i.e. eiter a string literal or an expression
+                if (node instanceof PrintNode || node instanceof DataNode){
+                    if (token.get().getType() == Token.TokenType.STRINGLITERAL){
+                        node.add(new StringNode(token.get().getValue()));
+                        handler.matchAndRemove(Token.TokenType.STRINGLITERAL);
+                    }
+                    else{
+                        node.add(expression());
+                    }
+                }
+                //ReadNode and InputNode are parsed similarly i.e. a variable
+                //In the case of InputNode, the first item in the list must be a string literal
+                else if (node instanceof ReadNode || node instanceof InputNode){
+                    node.add(new VariableNode(token.get().getValue()));
+                    handler.matchAndRemove(Token.TokenType.WORD);
+                }
+            }
+            else{
+                throw new IllegalStateException("Token not present");
+            }
+
+        }while(handler.matchAndRemove(Token.TokenType.COMMA).isPresent());
+
     }
-    //Handles new line/empty line tokens and returns boolean
+
     public boolean handleSeparators(){
 
         boolean foundSeperators = false;
@@ -349,7 +289,7 @@ public class Parser {
             if(isNegative) integerNumber = -integerNumber;
 
             return  new IntegerNode(integerNumber);
-        } 
+        }
 
     }
 
