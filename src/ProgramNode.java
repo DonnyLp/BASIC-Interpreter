@@ -1,13 +1,17 @@
+import java.util.LinkedList;
 import java.util.List;
 
-public class ProgramNode extends Node{
+public class ProgramNode extends Node implements Addable{
 
-    private final List<Node> nodes;
+    private final LinkedList<Node> nodes;
 
-    public ProgramNode(List<Node> nodes){
-        this.nodes = nodes;
+    public ProgramNode(){
+        this.nodes = new LinkedList<>();
     }
 
+    public void add(Node node){
+        nodes.add(node);
+    }
     @Override
     public String toString() {
         StringBuilder astTree = new StringBuilder();

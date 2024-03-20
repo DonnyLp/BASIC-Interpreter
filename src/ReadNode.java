@@ -1,14 +1,27 @@
-import java.util.List;
-public class ReadNode extends StatementNode {
+import java.util.LinkedList;
+public class ReadNode extends StatementNode implements Addable{
 
-    private final List<VariableNode> readList;
+    private final LinkedList<Node> readList;
 
-    public ReadNode(List<VariableNode> readList){
-        this.readList = readList;
+    public ReadNode(){
+        this.readList = new LinkedList<>();
+    }
+
+
+    @Override
+    public void add(Node node){
+        readList.add(node);
     }
 
     @Override
     public String toString() {
-        return readList.toString();
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("READ");
+
+        for (Node node : readList){
+            builder.append(" " + node.toString() + " ");
+        }
+        return builder.toString();
     }
 }

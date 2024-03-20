@@ -1,17 +1,29 @@
+import java.util.LinkedList;
 import java.util.List;
 
-public class DataNode extends StatementNode{
+public class DataNode extends StatementNode implements Addable{
 
-    private final List<Node> dataList;
+    private final LinkedList<Node> dataList;
 
 
-    public DataNode(List<Node> dataList){
-        this.dataList = dataList;
+    public DataNode(){
+        this.dataList = new LinkedList<>();
+    }
+
+    public void add(Node node){
+        dataList.add(node);
     }
 
     @Override
     public String toString(){
-        return dataList.toString();
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("DATA");
+
+        for (Node node : dataList){
+            builder.append(" " + node.toString() + " ");
+        }
+        return builder.toString();
     }
 
 }

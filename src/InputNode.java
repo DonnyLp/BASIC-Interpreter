@@ -1,16 +1,28 @@
-import java.util.List;
+import java.util.LinkedList;
 
-public class InputNode extends StatementNode {
+public class InputNode extends StatementNode implements Addable {
 
-    private List<Node> inputList;
+    private final LinkedList<Node> inputList;
 
-    public InputNode(List<Node> inputList){
-        this.inputList = inputList;
+    public InputNode(){
+        this.inputList = new LinkedList<>();
     }
 
     @Override
+    public void add(Node node){
+        inputList.add(node);
+    }
+    @Override
     public String toString() {
-        return inputList.toString();
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("INPUT");
+
+        for (Node node : inputList){
+            builder.append(" " + node.toString() + " ");
+        }
+        return builder.toString();
+
     }
 
 }

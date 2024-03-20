@@ -8,6 +8,10 @@ public class StringNode extends StatementNode {
 
     @Override
     public String toString() {
-        return "[" + this.value + "]";
+        StringBuilder builder = new StringBuilder();
+        builder.append("\"");
+        builder.append(this.value);
+        builder.append("\"");
+        return builder.toString();
     }
 }
