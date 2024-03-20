@@ -166,8 +166,8 @@ public class Lexer {
                 handler.swallow(2);
             }
             //accumulate characters
-                tokenValue.append(handler.peek(0));
-                handler.swallow(1);
+            tokenValue.append(handler.peek(0));
+            handler.swallow(1);
         }
 
         //Consume ending quotation
@@ -200,8 +200,8 @@ public class Lexer {
             token = new Token(singleCharSymbol,singleCharSymbols.get(singleCharSymbol), this.lineNumber,this.characterPosition);
             handler.swallow(1);
         }
-            this.characterPosition = handler.getIndex() - characterOffset;
-            return token ;
+        this.characterPosition = handler.getIndex() - characterOffset;
+        return token ;
     }
 
     //Matches character to specific state (WORD, NUMBER,etc.)
