@@ -156,6 +156,7 @@ public class Lexer {
         StringBuilder tokenValue = new StringBuilder();
 
         //Consume the beginning quotation
+        tokenValue.append(handler.peek(0));
         handler.swallow(1);
 
         //Loop through string literal and create token
@@ -171,6 +172,7 @@ public class Lexer {
         }
 
         //Consume ending quotation
+        tokenValue.append(handler.peek(0));
         handler.swallow(1);
 
         //Append token to list and update character position
