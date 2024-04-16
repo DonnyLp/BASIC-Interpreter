@@ -33,20 +33,225 @@ public class ParserTest{
     //This test exclusively tests input from the test file and tests the statement and statements methods
     @Test
     public void testParse() throws IOException {
-        LinkedList<Token> tokens = new LinkedList<>();
         Lexer lexer = new Lexer("test.txt");
         Parser parser = new Parser(lexer.lex());
 
-        Node astTree =  parser.parse();
+        StatementNode astTree =  parser.parse();
 
-        //This assert includes two assignments and elements of a print call
-        assertEquals("""
-                x = (3 * 4)
-                INPUT "What is your name and age?"  name$  age\s
-                PRINT "Hi "  name$  " you are "  age  "years old!"\s
-                DATA 10  "testParse"  3.145\s
-                READ random  a$  a%\s
-                """, astTree.toString());
+        assertEquals("READ count\n" +
+                "FOR I = 0 TO count\n" +
+                "READ F%\n" +
+                "GOSUB Convert\n" +
+                "NEXT I\n" +
+                "END\n" +
+                "DATA 10,22.3,33.1,55.2,44.2,17.8,66.2,47.1,33.2,42.9,17.2\n" +
+                "Convert: \n" +
+                "C% = ((5 * (F% - 32)) / 9)\n" +
+                "PRINT F%,\"DEG F = \",C%,\"DEG C\"\n" +
+                "RETURN\n", astTree.toString());
+    }
+
+    @Test
+    public void testRandom(){
+        LinkedList<Token> tokens = new LinkedList<>();
+        tokens.add(new Token(Token.TokenType.RANDOM));
+        tokens.add(new Token(Token.TokenType.LPAREN));
+        tokens.add(new Token(Token.TokenType.RPAREN));
+
+        Parser parser = new Parser(tokens);
+        //This expects null because the value for any of the function name's is
+        assertEquals("RANDOM()", parser.expression().toString());
+    }
+    @Test
+    public void testLEFT$(){
+
+        LinkedList<Token> tokens = new LinkedList<>();
+        tokens.add(new Token(Token.TokenType.LEFT$));
+        tokens.add(new Token(Token.TokenType.LPAREN));
+        tokens.add(new Token(Token.TokenType.STRINGLITERAL, "Albany"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.NUMBER, "6"));
+        tokens.add(new Token(Token.TokenType.RPAREN));
+
+        Parser parser = new Parser(tokens);
+        assertEquals("LEFT$(Albany,6)", parser.expression().toString());
+    }
+    
+    @Test
+    public void testRIGHT$(){
+        LinkedList<Token> tokens = new LinkedList<>();
+        tokens.add(new Token(Token.TokenType.RIGHT$));
+        tokens.add(new Token(Token.TokenType.LPAREN));
+        tokens.add(new Token(Token.TokenType.STRINGLITERAL, "Albany"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.NUMBER, "4"));
+        tokens.add(new Token(Token.TokenType.RPAREN));
+
+        Parser parser = new Parser(tokens);
+        assertEquals("RIGHT$(Albany,4)", parser.expression().toString());
+    }
+    @Test
+    public void testMID$(){
+        LinkedList<Token> tokens = new LinkedList<>();
+        tokens.add(new Token(Token.TokenType.MID$));
+        tokens.add(new Token(Token.TokenType.LPAREN));
+        tokens.add(new Token(Token.TokenType.STRINGLITERAL, "Albany"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
+        tokens.add(new Token(Token.TokenType.COMMA, ","));
+        tokens.add(new Token(Token.TokenType.NUMBER, "3"));
+        tokens.add(new Token(Token.TokenType.RPAREN));
+
+        Parser parser = new Parser(tokens);
+        assertEquals("MID$(Albany,2,3)", parser.expression().toString());
+    }
+    @Test
+    public void testNUM$(){
+        LinkedList<Token> tokens = new LinkedList<>();
+        tokens.add(new Token(Token.TokenType.NUM$));
+        tokens.add(new Token(Token.TokenType.LPAREN));
+        tokens.add(new Token(Token.TokenType.NUMBER, "3"));
+        tokens.add(new Token(Token.TokenType.RPAREN));
+
+        Parser parser = new Parser(tokens);
+        assertEquals("NUM$(3)", parser.expression().toString());
+    }
+    @Test
+    public void testValInt(){
+        LinkedList<Token> tokens = new LinkedList<>();
+        tokens.add(new Token(Token.TokenType.VAL_INT));
+        tokens.add(new Token(Token.TokenType.LPAREN));
+        tokens.add(new Token(Token.TokenType.STRINGLITERAL, "8"));
+        tokens.add(new Token(Token.TokenType.RPAREN));
+
+        Parser parser = new Parser(tokens);
+        assertEquals("VAL(8)", parser.expression().toString());
+    }
+    @Test
+    public void testValFloat(){
+        LinkedList<Token> tokens = new LinkedList<>();
+        tokens.add(new Token(Token.TokenType.VAL_FLOAT));
+        tokens.add(new Token(Token.TokenType.LPAREN));
+        tokens.add(new Token(Token.TokenType.STRINGLITERAL, "3.4"));
+        tokens.add(new Token(Token.TokenType.RPAREN));
+
+        Parser parser = new Parser(tokens);
+        assertEquals("VAL%(3.4)", parser.expression().toString());
+    }
+
+    @Test
+    public void testEndStatement(){
+        LinkedList<Token> tokens = new LinkedList<>();
+        tokens.add(new Token(Token.TokenType.END));
+
+        Parser parser = new Parser(tokens);
+        assertEquals("END", parser.parseEndStatement().toString());
+    }
+    @Test
+    public void testGoSubStatement(){
+        LinkedList<Token> tokens = new LinkedList<>();
+        tokens.add(new Token(Token.TokenType.GOSUB));
+        tokens.add(new Token(Token.TokenType.WORD, "FtoC"));
+
+        Parser parser = new Parser(tokens);
+        assertEquals("GOSUB FtoC", parser.parseGoSubStatement().toString());
+    }
+
+    @Test
+    public void testWhileStatement(){
+        LinkedList<Token> tokens = new LinkedList<>();
+
+        tokens.add(new Token(Token.TokenType.WHILE));
+        tokens.add(new Token(Token.TokenType.WORD, "x"));
+        tokens.add(new Token(Token.TokenType.LESSTHAN, "<"));
+        tokens.add(new Token(Token.TokenType.NUMBER, "5"));
+        tokens.add(new Token(Token.TokenType.WORD, "endWhileLabel"));
+        tokens.add(new Token(Token.TokenType.ENDOFLINE));
+        tokens.add(new Token(Token.TokenType.WORD, "x"));
+        tokens.add(new Token(Token.TokenType.EQUALS, "="));
+        tokens.add(new Token(Token.TokenType.WORD, "x"));
+        tokens.add(new Token(Token.TokenType.PLUS, "+"));
+        tokens.add(new Token(Token.TokenType.NUMBER, "1"));
+        tokens.add(new Token(Token.TokenType.ENDOFLINE));
+        tokens.add(new Token(Token.TokenType.LABEL, "endWhileLabel"));
+        tokens.add(new Token(Token.TokenType.ENDOFLINE));
+
+        Parser parser = new Parser(tokens);
+        assertEquals(
+                "WHILE x<5 endWhileLabel\n" +
+                        "x = (x + 1)\n" +
+                        "endWhileLabel:", parser.parseWhileStatement().toString());
+    }
+
+    @Test
+    public void testIfStatement(){
+        LinkedList<Token> tokens = new LinkedList<>();
+
+        tokens.add(new Token(Token.TokenType.IF));
+        tokens.add(new Token(Token.TokenType.WORD, "x"));
+        tokens.add(new Token(Token.TokenType.LESSTHAN, "<"));
+        tokens.add(new Token(Token.TokenType.NUMBER, "5"));
+        tokens.add(new Token(Token.TokenType.THEN));
+        tokens.add(new Token(Token.TokenType.WORD, "xIsSmall"));
+
+        Parser parser = new Parser(tokens);
+
+        assertEquals("IF x<5 THEN xIsSmall", parser.parseIfStatement().toString());
+    }
+
+    @Test
+    public void testForStatementWithStep(){
+
+        LinkedList<Token> tokens = new LinkedList<>();
+
+        tokens.add(new Token(Token.TokenType.FOR));
+        tokens.add(new Token(Token.TokenType.WORD, "A"));
+        tokens.add(new Token(Token.TokenType.EQUALS, "="));
+        tokens.add(new Token(Token.TokenType.NUMBER, "0"));
+        tokens.add(new Token(Token.TokenType.TO));
+        tokens.add(new Token(Token.TokenType.NUMBER, "10"));
+        tokens.add(new Token(Token.TokenType.STEP));
+        tokens.add(new Token(Token.TokenType.NUMBER, "2"));
+        tokens.add(new Token(Token.TokenType.ENDOFLINE));
+        tokens.add(new Token(Token.TokenType.PRINT));
+        tokens.add(new Token(Token.TokenType.WORD,"A"));
+        tokens.add(new Token(Token.TokenType.ENDOFLINE));
+        tokens.add(new Token(Token.TokenType.NEXT));
+        tokens.add(new Token(Token.TokenType.WORD, "A"));
+        tokens.add(new Token(Token.TokenType.ENDOFLINE));
+
+        Parser parser = new Parser(tokens);
+        assertEquals(
+                "FOR A = 0 TO 10 STEP 2\n" +
+                "PRINT A\n" +
+                "NEXT A", parser.parseForStatement().toString());
+    }
+
+    @Test
+    public void testForStatementWithoutStep(){
+
+        LinkedList<Token> tokens = new LinkedList<>();
+
+        tokens.add(new Token(Token.TokenType.FOR));
+        tokens.add(new Token(Token.TokenType.WORD, "A"));
+        tokens.add(new Token(Token.TokenType.EQUALS, "="));
+        tokens.add(new Token(Token.TokenType.NUMBER, "0"));
+        tokens.add(new Token(Token.TokenType.TO));
+        tokens.add(new Token(Token.TokenType.NUMBER, "10"));
+        tokens.add(new Token(Token.TokenType.ENDOFLINE));
+        tokens.add(new Token(Token.TokenType.PRINT));
+        tokens.add(new Token(Token.TokenType.WORD,"A"));
+        tokens.add(new Token(Token.TokenType.ENDOFLINE));
+        tokens.add(new Token(Token.TokenType.NEXT));
+        tokens.add(new Token(Token.TokenType.WORD, "A"));
+        tokens.add(new Token(Token.TokenType.ENDOFLINE));
+
+        Parser parser = new Parser(tokens);
+        assertEquals(
+                "FOR A = 0 TO 10\n" +
+                        "PRINT A\n" +
+                        "NEXT A", parser.parseForStatement().toString());
+
     }
 
     @Test
@@ -61,7 +266,7 @@ public class ParserTest{
         tokens.add(new Token(Token.TokenType.WORD, "age"));
 
         Parser parse = new Parser(tokens);
-        assertEquals("INPUT \"\"What is your name and age?\"\"  name$  age ", parse.parseInputStatement().toString());
+        assertEquals("INPUT \"What is your name and age?\",name$,age", parse.parseInputStatement().toString());
     }
     @Test
     public void testData(){
@@ -77,7 +282,7 @@ public class ParserTest{
         tokens.add(new Token(Token.TokenType.NUMBER, "8"));
 
         Parser parser = new Parser(tokens);
-        assertEquals("DATA \"\"Test String Literal\"\"  7.2  8.9  8 ", parser.parseDataStatement().toString());
+        assertEquals("DATA \"Test String Literal\",7.2,8.9,8", parser.parseDataStatement().toString());
     }
     @Test
     public void testRead(){
@@ -93,7 +298,7 @@ public class ParserTest{
         tokens.add(new Token(Token.TokenType.WORD, "a$"));
 
         Parser parser = new Parser(tokens);
-        assertEquals("READ a$  a%  a  a$ ", parser.parseReadStatement().toString());
+        assertEquals("READ a$,a%,a,a$", parser.parseReadStatement().toString());
     }
     @Test
     public void testStringLiteral(){
@@ -103,7 +308,7 @@ public class ParserTest{
 
         Parser parser = new Parser(tokens);
         String stringLiteral = parser.parseStringLiteral().toString();
-        assertEquals("\"\"Test String Literal\"\"", stringLiteral);
+        assertEquals("\"Test String Literal\"", stringLiteral);
     }
     @Test
     public void testPrint(){
@@ -127,7 +332,7 @@ public class ParserTest{
 
         Parser parser = new Parser(tokens);
         String printList = parser.parsePrintStatement().toString();
-        assertEquals("PRINT (1 + 2)  (2 + 3)  x  \"\"Test Literal\"\"  name$ ", printList);
+        assertEquals("PRINT (1 + 2),(2 + 3),x,\"Test Literal\",name$", printList);
     }
 
     @Test
