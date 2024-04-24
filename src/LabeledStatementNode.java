@@ -25,7 +25,7 @@ public class LabeledStatementNode extends StatementNode implements Addable {
     }
 
     @Override
-    public LinkedList getList() {
+    public LinkedList<StatementNode> getList() {
         return this.statements;
     }
 

@@ -7,10 +7,6 @@ public class IntegerNode extends Node{
         this.number = number;
     }
 
-    public IntegerNode(){
-        this.number = 0;
-    }
-
     public int getIntegerValue(){
         return this.number;
     }

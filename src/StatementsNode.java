@@ -1,7 +1,7 @@
 import java.util.LinkedList;
 
 public class StatementsNode  {
-    private LinkedList<StatementNode> statements;
+    private final LinkedList<StatementNode> statements;
 
     public StatementsNode(){
         this.statements = new LinkedList<>();
@@ -16,7 +16,7 @@ public class StatementsNode  {
         this.statements.add(node);
     }
 
-    public LinkedList getList() {
+    public LinkedList<StatementNode> getList() {
         return this.statements;
     }
 

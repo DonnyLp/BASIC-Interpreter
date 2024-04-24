@@ -1,5 +1,3 @@
-import org.junit.Test;
-
 public class BooleanExpressionNode extends StatementNode {
     private Node leftOperand;
     private BooleanOperator operator;

@@ -38,17 +38,19 @@ public class ParserTest{
 
         StatementsNode astTree =  parser.parse();
 
-        assertEquals("READ count\n" +
-                "FOR I = 0 TO count\n" +
-                "READ F%\n" +
-                "GOSUB Convert\n" +
-                "NEXT I\n" +
-                "END\n" +
-                "DATA 10,22.3,33.1,55.2,44.2,17.8,66.2,47.1,33.2,42.9,17.2\n" +
-                "Convert: \n" +
-                "C% = ((5 * (F% - 32)) / 9)\n" +
-                "PRINT F%,\"DEG F = \",C%,\"DEG C\"\n" +
-                "RETURN\n", astTree.toString());
+        assertEquals("""
+                READ count
+                FOR I = 0 TO count
+                READ F%
+                GOSUB Convert
+                NEXT I
+                END
+                DATA 10,22.3,33.1,55.2,44.2,17.8,66.2,47.1,33.2,42.9,17.2
+                Convert:\s
+                C% = ((5 * (F% - 32)) / 9)
+                PRINT F%,"DEG F = ",C%,"DEG C"
+                RETURN
+                """, astTree.toString());
     }
 
     @Test
@@ -178,9 +180,10 @@ public class ParserTest{
 
         Parser parser = new Parser(tokens);
         assertEquals(
-                "WHILE x<5 endWhileLabel\n" +
-                        "x = (x + 1)\n" +
-                        "endWhileLabel:", parser.parseWhileStatement().toString());
+                """
+                        WHILE x<5 endWhileLabel
+                        x = (x + 1)
+                        endWhileLabel:""", parser.parseWhileStatement().toString());
     }
 
     @Test
@@ -222,9 +225,10 @@ public class ParserTest{
 
         Parser parser = new Parser(tokens);
         assertEquals(
-                "FOR A = 0 TO 10 STEP 2\n" +
-                "PRINT A\n" +
-                "NEXT A", parser.parseForStatement().toString());
+                """
+                        FOR A = 0 TO 10 STEP 2
+                        PRINT A
+                        NEXT A""", parser.parseForStatement().toString());
     }
 
     @Test
@@ -248,9 +252,10 @@ public class ParserTest{
 
         Parser parser = new Parser(tokens);
         assertEquals(
-                "FOR A = 0 TO 10\n" +
-                        "PRINT A\n" +
-                        "NEXT A", parser.parseForStatement().toString());
+                """
+                        FOR A = 0 TO 10
+                        PRINT A
+                        NEXT A""", parser.parseForStatement().toString());
 
     }
 

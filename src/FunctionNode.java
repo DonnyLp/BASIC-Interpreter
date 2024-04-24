@@ -3,7 +3,7 @@ import java.util.LinkedList;
 public class FunctionNode extends StatementNode implements Addable{
 
     private String functionName;
-    private LinkedList<Node> parameters;
+    private final LinkedList<Node> parameters;
 
     public FunctionNode(String functionName){
         this.functionName = functionName;

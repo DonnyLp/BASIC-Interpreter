@@ -12,7 +12,7 @@ public class NextNode extends StatementNode{
 
     @Override
     public String toString(){
-        return "NEXT " + variable.toString();
+        return "NEXT " + variable;
     }
 
 }

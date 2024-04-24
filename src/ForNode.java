@@ -1,14 +1,12 @@
-import java.util.LinkedList;
-
 public class ForNode extends StatementNode {
 
-    private VariableNode variable;
-    private Node startIndex;
-    private Node endIndex;
+    private final VariableNode variable;
+    private final Node startIndex;
+    private final Node endIndex;
 
-    private int incrementValue;
+    private final int incrementValue;
 
-    private boolean isStepPresent;
+    private final boolean isStepPresent;
 
     public ForNode(VariableNode variable, Node startIndex, Node endIndex, int incrementValue, boolean isStepPresent){
         this.variable = variable;

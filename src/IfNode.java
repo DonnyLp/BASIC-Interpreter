@@ -1,7 +1,7 @@
 public class IfNode extends StatementNode {
 
-    private BooleanExpressionNode condition;
-    private String label;
+    private final BooleanExpressionNode condition;
+    private final String label;
 
 
     public IfNode(BooleanExpressionNode condition, String label){

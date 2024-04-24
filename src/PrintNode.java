@@ -1,5 +1,4 @@
 import java.util.LinkedList;
-import java.util.List;
 
 public class PrintNode extends StatementNode implements Addable{
     private final LinkedList<Node> printList;

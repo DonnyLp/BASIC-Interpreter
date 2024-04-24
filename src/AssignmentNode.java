@@ -1,5 +1,3 @@
-import javax.lang.model.element.VariableElement;
-
 public class AssignmentNode extends StatementNode{
 
     private final Node assignmentValue;

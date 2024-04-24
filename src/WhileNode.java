@@ -1,9 +1,7 @@
-import java.util.LinkedList;
-
 public class WhileNode extends StatementNode {
 
-    private BooleanExpressionNode condition;
-    private String label;
+    private final BooleanExpressionNode  condition;
+    private final String label;
 
     public WhileNode(BooleanExpressionNode condition, String label){
         this.condition = condition;
@@ -26,11 +24,7 @@ public class WhileNode extends StatementNode {
     @Override
     public String toString(){
 
-        StringBuilder whileLoopVisualizer = new StringBuilder();
-
-        whileLoopVisualizer.append("WHILE ").append(condition.toString()).append(" ").append(this.label);
-
-        return whileLoopVisualizer.toString();
+        return "WHILE " + condition.toString() + " " + this.label;
     }
 
 }
