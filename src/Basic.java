@@ -12,18 +12,30 @@ public class Basic {
         String fileName = args[0];
         Lexer lexer = new Lexer(fileName);
         Parser parser;
+        Interpreter interpreter;
 
         LinkedList<Token> output = lexer.lex();
+
         Token [] tokens = output.toArray(new Token[0]);
+
+        // Print the lexed tokens
+         System.out.println("Tokens:");
+       for(Token token: tokens){
+           System.out.println(token);
+       }
+       System.out.println("\n");
+
+       // Parse the linked list of tokens and print the AST
         parser = new Parser(output);
+        StatementsNode astTree = parser.parse();
+        System.out.println("AST:");
+        System.out.println(astTree);
 
-        //Print tokens
-//       for(Token token: tokens){
-//           System.out.println(token);
-//       }
+        //Process the AST
+        interpreter = new Interpreter(astTree,false);
 
-       //Print AST
-        System.out.println(parser.parse());
+        System.out.println("Converting Fahrenheit to Celsius: ");
+        interpreter.interpret(astTree.getHead());
 
     }
 }
