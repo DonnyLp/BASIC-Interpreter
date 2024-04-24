@@ -1,7 +1,7 @@
 public class Token {
 
     private String value;
-    private TokenType type;
+    private final TokenType type;
     private int lineNumber;
     private int characterPosition;
 
