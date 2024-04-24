@@ -7,6 +7,10 @@ public class ReadNode extends StatementNode implements Addable{
         this.readList = new LinkedList<>();
     }
 
+    @Override
+    public LinkedList<Node> getList(){
+        return this.readList;
+    }
 
     @Override
     public void add(Node node){
@@ -17,10 +21,15 @@ public class ReadNode extends StatementNode implements Addable{
     public String toString() {
         StringBuilder builder = new StringBuilder();
 
-        builder.append("READ");
+        builder.append("READ").append(" ");
 
-        for (Node node : readList){
-            builder.append(" " + node.toString() + " ");
+        int index = 0;
+        while (index < readList.size()){
+
+            builder.append(readList.get(index).toString());
+
+            if(index < readList.size() - 1) builder.append(",");
+            index++;
         }
         return builder.toString();
     }

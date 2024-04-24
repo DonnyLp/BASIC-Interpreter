@@ -1,13 +1,17 @@
 public class GoSubNode extends StatementNode{
 
-    private final String subRoutineName;
+    private final String label;
 
     public GoSubNode(String subRoutineName){
-        this.subRoutineName =  subRoutineName;
+        this.label =  subRoutineName;
+    }
+
+    public String getLabel(){
+        return this.label;
     }
 
     @Override
     public String toString(){
-        return "GOSUB " + this.subRoutineName;
+        return "GOSUB " + this.label;
     }
 }

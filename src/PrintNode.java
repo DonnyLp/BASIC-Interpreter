@@ -2,12 +2,17 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class PrintNode extends StatementNode implements Addable{
-    public final LinkedList<Node> printList;
+    private final LinkedList<Node> printList;
 
     public PrintNode(){
         this.printList = new LinkedList<>();
     }
 
+    public LinkedList<Node> getList(){
+        return this.printList;
+    }
+
+    @Override
     public void add(Node node){
         printList.add(node);
     }
@@ -16,10 +21,15 @@ public class PrintNode extends StatementNode implements Addable{
     public String toString(){
         StringBuilder builder = new StringBuilder();
 
-        builder.append("PRINT");
+        builder.append("PRINT").append(" ");
 
-        for (Node node : printList){
-            builder.append(" ").append(node.toString()).append(" ");
+        int index = 0;
+        while (index < printList.size()){
+
+            builder.append(printList.get(index).toString());
+
+            if(index < printList.size() - 1) builder.append(",");
+            index++;
         }
         return builder.toString();
     }

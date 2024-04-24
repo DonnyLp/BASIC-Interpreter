@@ -6,6 +6,10 @@ public class FloatNode extends Node{
         this.floatNumber = number;
     }
 
+    public float getFloatValue(){
+        return this.floatNumber;
+    }
+
     @Override
     public String toString() {
         return Float.toString(floatNumber);

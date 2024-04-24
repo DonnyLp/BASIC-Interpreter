@@ -14,16 +14,29 @@ public class DataNode extends StatementNode implements Addable{
         dataList.add(node);
     }
 
-    @Override
-    public String toString(){
-        StringBuilder builder = new StringBuilder();
-
-        builder.append("DATA");
-
-        for (Node node : dataList){
-            builder.append(" " + node.toString() + " ");
-        }
-        return builder.toString();
+    public LinkedList<Node> getDataList(){
+        return dataList;
     }
 
+    @Override
+    public LinkedList<Node> getList(){
+        return this.dataList;
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder dataBuilder = new StringBuilder();
+
+        dataBuilder.append("DATA").append(" ");
+
+        int index = 0;
+        while (index < dataList.size()){
+
+            dataBuilder.append(dataList.get(index).toString());
+
+            if(index < dataList.size() - 1) dataBuilder.append(",");
+            index++;
+        }
+        return dataBuilder.toString();
+    }
 }

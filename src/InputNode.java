@@ -8,6 +8,10 @@ public class InputNode extends StatementNode implements Addable {
         this.inputList = new LinkedList<>();
     }
 
+    public LinkedList<Node> getList(){
+        return this.inputList;
+    }
+
     @Override
     public void add(Node node){
         inputList.add(node);
@@ -16,10 +20,15 @@ public class InputNode extends StatementNode implements Addable {
     public String toString() {
         StringBuilder builder = new StringBuilder();
 
-        builder.append("INPUT");
+        builder.append("INPUT").append(" ");
 
-        for (Node node : inputList){
-            builder.append(" " + node.toString() + " ");
+        int index = 0;
+        while (index < inputList.size()){
+
+            builder.append(inputList.get(index).toString());
+
+            if(index < inputList.size() - 1) builder.append(",");
+            index++;
         }
         return builder.toString();
 

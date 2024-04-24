@@ -1,14 +1,12 @@
 import java.util.LinkedList;
 
-public class ForNode extends StatementNode implements Addable {
+public class ForNode extends StatementNode {
 
     private VariableNode variable;
     private Node startIndex;
     private Node endIndex;
 
     private int incrementValue;
-
-    private final LinkedList<Node> body;
 
     private boolean isStepPresent;
 
@@ -17,18 +15,30 @@ public class ForNode extends StatementNode implements Addable {
         this.startIndex = startIndex;
         this.endIndex = endIndex;
         this.incrementValue = incrementValue;
-        this.body = new LinkedList<>();
         this.isStepPresent = isStepPresent;
     }
-
     public ForNode(){
-        this.body = new LinkedList<>();
+        this.variable = null;
+        this.startIndex = null;
+        this.endIndex = null;
+        this.incrementValue = 0;
+        this.isStepPresent = false;
     }
 
+    public VariableNode getVariable() {
+        return variable;
+    }
 
-    @Override
-    public void add(Node node){
-        body.add(node);
+    public int getIncrementValue(){
+        return incrementValue;
+    }
+
+    public Node getStartIndex(){
+        return this.startIndex;
+    }
+
+    public Node getEndIndex(){
+        return this.endIndex;
     }
 
     @Override
@@ -45,10 +55,6 @@ public class ForNode extends StatementNode implements Addable {
             forLoopVisualizer.append(" STEP ").append(this.incrementValue);
         }
 
-        for (Node node : body){
-            forLoopVisualizer.append("\n").append(node.toString());
-        }
-        forLoopVisualizer.append("\n").append("NEXT ").append(this.variable);
         return forLoopVisualizer.toString();
     }
 }

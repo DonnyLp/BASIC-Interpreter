@@ -5,6 +5,9 @@ public class VariableNode extends Node{
     public VariableNode(String name){
         this.name = name;
     }
+    public VariableNode(){this.name = "";}
+
+    public String getName(){return this.name;}
 
     @Override
     public String toString() {

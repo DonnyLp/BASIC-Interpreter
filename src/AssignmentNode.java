@@ -1,3 +1,5 @@
+import javax.lang.model.element.VariableElement;
+
 public class AssignmentNode extends StatementNode{
 
     private final Node assignmentValue;
@@ -8,8 +10,17 @@ public class AssignmentNode extends StatementNode{
         this.assignmentValue = value;
     }
 
+    public VariableNode getVariableName(){
+        return this.variableName;
+    }
+
+    public Node getAssignmentValue(){
+        return this.assignmentValue;
+    }
+
     @Override
     public String toString() {
         return this.variableName.toString() + " = " + this.assignmentValue.toString();
     }
+
 }

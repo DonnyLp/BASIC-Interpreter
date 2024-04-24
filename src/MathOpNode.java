@@ -27,6 +27,18 @@ public class MathOpNode extends Node {
         }
     }
 
+    public Node getLeft(){
+        return this.left;
+    }
+
+    public MathOperation getOperation(){
+        return this.operation;
+    }
+
+    public Node getRight(){
+        return this.right;
+    }
+
     @Override
     public String toString() {
         return "(" +this.left + " " + this.operation.getSymbol() + " " +  this.right + ")";

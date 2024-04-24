@@ -9,7 +9,18 @@ public class IfNode extends StatementNode {
         this.label = label;
     }
 
-    public IfNode(){}
+    public IfNode(){
+        this.condition = null;
+        this.label = "";
+    }
+
+    public BooleanExpressionNode getCondition(){
+        return this.condition;
+    }
+
+    public String getLabel(){
+        return this.label;
+    }
 
     @Override
     public String toString(){

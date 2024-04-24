@@ -2,12 +2,31 @@ import java.util.LinkedList;
 
 public class LabeledStatementNode extends StatementNode implements Addable {
 
-    private final String label;
+    private final String labelName;
+    private boolean isWhileLabel;
     private final LinkedList<StatementNode> statements;
 
-    public LabeledStatementNode(String label) {
-        this.label = label;
+    public LabeledStatementNode(String labelName, boolean isWhileLabel) {
+        this.labelName = labelName;
+        this.isWhileLabel = isWhileLabel;
         this.statements = new LinkedList<>();
+    }
+
+    public String getLabelName(){
+        return this.labelName;
+    }
+
+    public boolean isWhileLabel(){
+        return this.isWhileLabel;
+    }
+
+    public void setWhileLabelMode(boolean isWhileMode){
+        this.isWhileLabel = isWhileMode;
+    }
+
+    @Override
+    public LinkedList getList() {
+        return this.statements;
     }
 
     @Override
@@ -15,8 +34,9 @@ public class LabeledStatementNode extends StatementNode implements Addable {
         this.statements.add((StatementNode) node);
     }
 
+
     public String getLabel() {
-        return label;
+        return labelName;
     }
 
     public LinkedList<StatementNode> getStatements() {
@@ -26,7 +46,7 @@ public class LabeledStatementNode extends StatementNode implements Addable {
     @Override
     public String toString() {
         StringBuilder statementsBuilder = new StringBuilder();
-        statementsBuilder.append(this.label).append(":\n");
+        statementsBuilder.append(this.labelName).append(":\n");
         for (StatementNode statement : statements){
             statementsBuilder.append(statement.toString());
             statementsBuilder.append("\n");

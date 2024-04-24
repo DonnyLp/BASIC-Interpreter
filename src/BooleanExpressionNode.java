@@ -29,11 +29,28 @@ public class BooleanExpressionNode extends StatementNode {
         this.operator = BooleanOperator.valueOf(operator.name());
         this.rightOperand = rightOperand;
     }
-    public BooleanExpressionNode(){}
+
+    public BooleanExpressionNode(){
+        this.leftOperand = null;
+        this.operator = null;
+        this.rightOperand = null;
+    }
+
+    public Node getLeftOperand(){
+        return this.leftOperand;
+    }
+
+    public Node getRightOperand(){
+        return this.rightOperand;
+    }
+
+    public BooleanOperator getOperator(){
+        return this.operator;
+    }
 
     @Override
     public String toString(){
-        return leftOperand.toString() + this.operator.getOperator() + rightOperand.toString();
+        return leftOperand.toString() +" "+ this.operator.getOperator() +" "+ rightOperand.toString();
     }
 
 }
