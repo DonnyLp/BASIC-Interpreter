@@ -1,26 +1,40 @@
 import java.util.LinkedList;
 
-public class StatementsNode extends StatementNode implements Addable {
-    private final LinkedList<StatementNode> statements;
+public class StatementsNode  {
+    private LinkedList<StatementNode> statements;
 
     public StatementsNode(){
         this.statements = new LinkedList<>();
     }
 
-    @Override
-    public void add(Node node) {
-        this.statements.add((StatementNode) node);
+    public StatementNode getHead(){
+        return this.statements.getFirst();
+    }
+
+
+    public void add(StatementNode node) {
+        this.statements.add(node);
+    }
+
+    public LinkedList getList() {
+        return this.statements;
+    }
+
+    public void setNextForAll(){
+        Visitor visitor = new NextSetter();
+        for(StatementNode node: this.statements){
+            node.accept(visitor);
+        }
     }
 
     @Override
     public String toString(){
         StringBuilder statementsBuilder = new StringBuilder();
-        for (StatementNode statement : statements){
-            statementsBuilder.append(statement.toString());
-            statementsBuilder.append("\n");
+
+        for(Node statement: statements){
+            statementsBuilder.append(statement).append("\n");
         }
         return statementsBuilder.toString();
     }
-
 
 }
