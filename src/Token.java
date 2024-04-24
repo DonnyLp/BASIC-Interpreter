@@ -1,16 +1,19 @@
 public class Token {
 
     private String value;
-    private final TokenType type;
+    private TokenType type;
     private int lineNumber;
     private int characterPosition;
 
     public enum TokenType{
-        WORD, NUMBER, IF,DO, STRINGLITERAL, NOTEQUALS, LPAREN, RPAREN,
+        WORD, NUMBER, STRINGLITERAL,
         EQUALS, LESSTHAN, GREATERTHAN, LESSTHANOREQUAL, GREATERTHANOREQUAL,
+        NOTEQUALS, LPAREN, RPAREN,COMMA,
         PLUS, MINUS, MULTIPLY, DIVIDE,
-        LABEL, PRINT, READ, INPUT, DATA, GOSUB,FOR, TO, STEP, NEXT, RETURN, THEN, FUNCTION, WHILE, END,
-        COMMA, ENDOFLINE
+        LABEL, PRINT, READ, INPUT, DATA, GOSUB,FOR, TO, STEP, NEXT, RETURN,
+        THEN, FUNCTION, WHILE, END, IF,DO,
+        RANDOM,LEFT$,RIGHT$,MID$,NUM$,VAL_INT,VAL_FLOAT,
+        ENDOFLINE
     }
 
     public Token(TokenType type, String value){
@@ -31,6 +34,17 @@ public class Token {
         this.characterPosition = characterPosition;
 
     }
+    public Token(TokenType type){
+        this.type = type;
+    }
+
+    public Token(){
+        this.type = null;
+        this.value = null;
+        this.lineNumber = 0;
+        this.characterPosition = 0;
+    }
+
 
     public TokenType getType(){ return this.type; }
 
