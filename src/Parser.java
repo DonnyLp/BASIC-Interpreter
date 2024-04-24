@@ -1,3 +1,4 @@
+import javax.lang.model.element.VariableElement;
 import java.util.*;
 import java.util.function.Function;
 
@@ -7,11 +8,13 @@ public class Parser {
     //Member variables
     private final TokenHandler handler;
     private final Set<Token.TokenType> functionSet;
+    private boolean isWhileLoopMode;
 
     //Methods
     public Parser(LinkedList<Token> tokens){
         handler = new TokenHandler(tokens);
         this.functionSet = new HashSet<>();
+        this.isWhileLoopMode = false;
         initializeFunctionSet();
     }
 
@@ -29,7 +32,7 @@ public class Parser {
         return statementsList;
     }
 
-    public StatementNode  parseStatement(){
+    public StatementNode parseStatement(){
 
         StatementNode statement = null;
         Optional<Token> nextToken = handler.peek(0);
@@ -50,6 +53,7 @@ public class Parser {
                 case RANDOM,LEFT$,MID$,RIGHT$,VAL_FLOAT,VAL_INT,NUM$ -> statement = parseFunctionStatement();
                 case LABEL -> statement = parseLabelStatement();
                 case END -> statement = parseEndStatement();
+                case NEXT -> statement = parseNextStatement();
                 case ENDOFLINE -> handleSeparators();
                 default -> throw new ParserException("Encountered an invalid token type: " + nextToken.get().getType());
             }
@@ -61,22 +65,14 @@ public class Parser {
     public LabeledStatementNode parseLabelStatement(){
 
         Token labelToken = extractToken(Token.TokenType.LABEL, "Expected LABEL token");
-        LabeledStatementNode labeledStatement = new LabeledStatementNode(labelToken.getValue());
+        LabeledStatementNode labeledStatement = new LabeledStatementNode(labelToken.getValue(),isWhileLoopMode);
 
-        do{
-            handleSeparators();
-            StatementNode statement = parseStatement();
-            labeledStatement.add(statement);
-            handleSeparators();
-        }while(handler.peek(0).isPresent() && !handler.peek(0).get().getType().equals(Token.TokenType.RETURN));
+        //handle while loop empty label
+        if(isWhileLoopMode){
+            isWhileLoopMode = false;
+            return labeledStatement;
+        }
 
-        //Ensure that the last statement in the labeled statement is a return statement
-        if(handler.peek(0).isPresent() && handler.peek(0).get().getType().equals(Token.TokenType.RETURN)){
-            labeledStatement.add(parseReturnStatement());
-        }
-        else{
-            throw new ParserException("Expected a RETURN statement at the end of the labeled statement(s)");
-        }
         return labeledStatement;
     }
 
@@ -177,20 +173,8 @@ public class Parser {
         label = extractToken(Token.TokenType.WORD, "Expected label name after condition");
         whileNode = new WhileNode(condition, label.getValue());
 
-        handleSeparators();
-        while(handler.peek(0).isPresent() && !handler.peek(0).get().getValue().equals(label.getValue())){
-            handleSeparators();
-            StatementNode statement = parseStatement();
-            whileNode.add(statement);
-            handleSeparators();
-        }
-
-        //Ensure that the declared label matches the label at called at the end of the while loop
-        if(!label.getValue().equals(handler.peek(0).get().getValue())){
-            throw new ParserException("Label defined at the start of the while loop doesn't match the one defined at the end");
-        }else{
-            verifyTokenPresence(Token.TokenType.LABEL,"Expected label to be called after the loop body.");
-        }
+        //set the mode of the label method to handle the while variation
+        isWhileLoopMode = true;
 
         return whileNode;
     }
@@ -211,6 +195,7 @@ public class Parser {
 
         return ifNode;
     }
+
     public EndNode parseEndStatement(){
 
         //EndNode is of the form -> "END"
@@ -267,22 +252,21 @@ public class Parser {
             forNode = new ForNode(new VariableNode(loopVariable.getValue()),startIndex,endIndex,incrementValue,false);
         }
 
-        while(handler.peek(0).isPresent() && handler.peek(0).get().getType() != Token.TokenType.NEXT){
-            handleSeparators();
-            StatementNode statement = parseStatement();
-            forNode.add(statement);
-            handleSeparators();
-        }
-        verifyTokenPresence(Token.TokenType.NEXT, "Expected NEXT token at the end of the loop");
-        
-        //loop variable defined at the start must match the variable defined at the end of the loop
-        if(!loopVariable.getValue().equals(handler.peek(0).get().getValue())){
-            throw new ParserException("The loop variables defined at the start and end of loop don't match");
-        }
-        
-        verifyTokenPresence(Token.TokenType.WORD,"Expected loop variable to be called after NEXT token");
-
         return forNode;
+    }
+
+    public NextNode parseNextStatement(){
+
+        NextNode next = new NextNode();
+        VariableNode nextVariable = new VariableNode();
+
+        verifyTokenPresence(Token.TokenType.NEXT,"Expected a NEXT token");
+        Token variable = extractToken(Token.TokenType.WORD,"Excepted a variable after the NEXT token");
+
+        nextVariable = new VariableNode(variable.getValue());
+        next = new NextNode(nextVariable);
+
+        return next;
     }
 
     public ReturnNode parseReturnStatement(){
