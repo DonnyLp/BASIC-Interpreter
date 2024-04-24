@@ -36,7 +36,7 @@ public class ParserTest{
         Lexer lexer = new Lexer("test.txt");
         Parser parser = new Parser(lexer.lex());
 
-        StatementNode astTree =  parser.parse();
+        StatementsNode astTree =  parser.parse();
 
         assertEquals("READ count\n" +
                 "FOR I = 0 TO count\n" +
@@ -352,7 +352,7 @@ public class ParserTest{
         assertEquals("x = (x * 11)", assignment);
     }
 
-    //This collection of tests have no use for this version of the parser
+    //These collection of test have no use in any versions of the parser after, parser 2
 //    @Test
 //    public void testAddition(){
 //        LinkedList<Token> tokens = new LinkedList<>();
