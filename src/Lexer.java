@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 public class Lexer {
 
-    private final LinkedList<Token> tokens = new LinkedList<>();
+    private final LinkedList<Token> tokens;
     private final CodeHandler handler;
     private int lineNumber;
     private int characterPosition;
@@ -30,6 +30,7 @@ public class Lexer {
 
     public Lexer(String fileName) throws IOException {
         handler = new CodeHandler(fileName);
+        tokens = new LinkedList<>();
         this.lineNumber = 1;
         this.characterPosition = 1;
         this.characterOffset = 0;
@@ -85,22 +86,20 @@ public class Lexer {
         StringBuilder tokenValue = new StringBuilder();
 
         //Loop through characters while it's either a letter, digit, or terminating symbol for string variables
-        while (!handler.isDone() && (isValidWordChar(handler.peek(0)))){
+        while (!handler.isDone() && isValidWordChar(handler.peek(0))){
             tokenValue.append(handler.peek(0));
             handler.swallow(1);
         }
 
         //Handle keywords and makes corresponding token
         if(keyWords.containsKey(tokenValue.toString())){
-            token = new Token(keyWords.get(tokenValue.toString()),this.lineNumber,this.characterPosition);
+            token = new Token("",keyWords.get(tokenValue.toString()),this.lineNumber,this.characterPosition);
         }
 
         //Handle label case
         if (!handler.isDone() && handler.peek(0) == ':'){
-
             token = new Token(tokenValue.toString(), Token.TokenType.LABEL,this.lineNumber,this.characterPosition);
             handler.swallow(1);
-
         }
         //Handle case where there's a space in between the semicolon and consume the corresponding characters
         else if (!handler.isDone() && handler.peek(1) == ':'){
@@ -156,7 +155,6 @@ public class Lexer {
         StringBuilder tokenValue = new StringBuilder();
 
         //Consume the beginning quotation
-        tokenValue.append(handler.peek(0));
         handler.swallow(1);
 
         //Loop through string literal and create token
@@ -172,7 +170,6 @@ public class Lexer {
         }
 
         //Consume ending quotation
-        tokenValue.append(handler.peek(0));
         handler.swallow(1);
 
         //Append token to list and update character position
@@ -240,6 +237,13 @@ public class Lexer {
         this.keyWords.put("TO", Token.TokenType.TO);
         this.keyWords.put("READ", Token.TokenType.READ);
         this.keyWords.put("STEP", Token.TokenType.STEP);
+        this.keyWords.put("RANDOM", Token.TokenType.RANDOM);
+        this.keyWords.put("LEFT$", Token.TokenType.LEFT$);
+        this.keyWords.put("RIGHT$", Token.TokenType.RIGHT$);
+        this.keyWords.put("MID$", Token.TokenType.MID$);
+        this.keyWords.put("NUM$", Token.TokenType.NUM$);
+        this.keyWords.put("VAL", Token.TokenType.VAL_INT);
+        this.keyWords.put("VAL%", Token.TokenType.VAL_FLOAT);
 
         //initialize double character symbol hashmap
         this.doubleCharSymbols.put("<>", Token.TokenType.NOTEQUALS);
