@@ -32,7 +32,13 @@ public class Interpreter {
     }
 
 
-    //interpret any type of statement
+    /*
+    Interprets the entire ast tree from the passed in head reference.
+    Optimizes the interpretation process by setting saving all DATA statement contents and labeled statements in maps
+    If a statement that isn't supported is passed in then it will throw a InterpreterException with a custom message
+    @param StatementNode statement - the head of the ast tree
+    @return void
+     */
     public void interpret(StatementNode currentStatement) {
 
         //optimize interpretation processing
@@ -104,14 +110,19 @@ public class Interpreter {
                     }
 
                 }
-                case WhileNode whileNode-> interpretWhileNode(whileNode,currentStatement);
+                case WhileNode whileNode-> interpretWhileNode(whileNode);
                 default -> throw new InterpreterException("Statement interpretation not supported: " + currentStatement.toString());
             }
             currentStatement = this.nextStatement;
         }
     }
 
-    public void interpretWhileNode(WhileNode whileNode, StatementNode currentStatement){
+    /*
+    Interprets the whileNode statement given the whileNode
+    @param whileNode: current statement that is passed in from the interpret method that is of type WhileNode
+    @return void
+     */
+    public void interpretWhileNode(WhileNode whileNode){
 
         BooleanExpressionNode condition = whileNode.getCondition();
         String label = whileNode.getLabel();
@@ -129,6 +140,12 @@ public class Interpreter {
         }
     }
 
+    /*
+    Interprets the forNode statement given the forNode statement from the ast tree
+    @param forNode - current statement that is passed in from the interpret method that is of type ForNode
+    @param currentStatement - instance of the current statement used to iterate through the ast tree
+    @return void
+     */
     public void interpretForNode(ForNode forNode, StatementNode currentStatement) {
 
         String loopVariable;
