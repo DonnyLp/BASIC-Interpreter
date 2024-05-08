@@ -203,7 +203,12 @@ public class Lexer {
         return token ;
     }
 
-    //Matches character to specific state (WORD, NUMBER,etc.)
+    /*
+    Matches the passed in character to a predetermined state.
+    If passed in character doesn't correlate to any given states then state is set as invalid
+    @param char current - current character in the input file being processed in the lex method
+    @return enum state - enum used to identify what process to execute on a given character
+     */
     private state matchState(char current) {
 
         state newState = state.INVALID;
@@ -218,7 +223,12 @@ public class Lexer {
         return newState;
     }
 
-    //Adds corresponding elements to initialized hash maps (SYMBOLS & KEYWORDS)
+    /*
+    Set all hashmaps values to corresponding values defined in language definition
+    Keywords - tokens that correspond to language defined processes
+    DoubleCharSymbols - holds 
+    @return void
+     */
     private void populateHashMaps(){
         //initialize keywords hash map
         this.keyWords.put("FOR", Token.TokenType.FOR);
