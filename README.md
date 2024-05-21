@@ -1,6 +1,6 @@
 # BASIC Interpreter
 
-AN interpreter for the BASIC language using Java. The compiler utilizes lexing, Abstract Syntax Tree (AST) parsing, and interpretation techniques.
+An interpreter for the BASIC language using Java. The compiler utilizes lexing, Abstract Syntax Tree (AST) parsing, and interpretation techniques.
 
 ## Summary
 
